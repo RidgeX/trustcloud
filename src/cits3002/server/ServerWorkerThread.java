@@ -5,7 +5,11 @@ import cits3002.server.commands.CommandParser;
 import cits3002.server.commands.UnsupportedCommand;
 
 import javax.net.ssl.SSLSocket;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 class ServerWorkerThread extends Thread {
 	private static final int MAX_BINARY_DATA = 100 * 1024 * 1024; // 100 MB

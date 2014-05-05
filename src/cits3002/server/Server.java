@@ -3,7 +3,7 @@ package cits3002.server;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import java.io.*;
+import java.io.IOException;
 
 public class Server {
 	public static void main(String[] args) {
