@@ -1,5 +1,9 @@
 package cits3002.server.commands;
 
+import cits3002.server.NamespaceLayer;
+
+import java.io.IOException;
+
 import static cits3002.util.CommandUtil.makeCommandString;
 
 public class FileCommand implements Command {
@@ -12,6 +16,12 @@ public class FileCommand implements Command {
 	}
 
 	@Override public String execute() {
-		return makeCommandString("FAL", "File command not yet implemented.");
+		try {
+			new NamespaceLayer().writeFile(filename, data, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return makeCommandString("FAL", "Could not create file.");
+		}
+		return makeCommandString("SUC", "File " + filename + " created.");
 	}
 }

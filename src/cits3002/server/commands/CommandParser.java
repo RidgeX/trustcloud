@@ -3,11 +3,9 @@ package cits3002.server.commands;
 import java.util.Scanner;
 
 public class CommandParser {
-	public static Command parseCommand(String command, String binaryData) {
+	public Command parseCommand(String command, String binaryData) {
 		Scanner sc = new Scanner(command);
-		if (!sc.hasNext()) {
-			return new UnsupportedCommand();
-		}
+
 		String type = sc.next();
 		if (type.equals("FLE")) {
 			return createFileCommand(command, binaryData);
@@ -24,23 +22,26 @@ public class CommandParser {
 		return new UnsupportedCommand();
 	}
 
-	public static Command createFileCommand(String command, String binaryData) {
-		return new FileCommand(null, null);
+	public Command createFileCommand(String command, String binaryData) {
+		Scanner sc = new Scanner(command);
+		sc.next();
+		String filename = sc.next();
+		return new FileCommand(filename, binaryData);
 	}
 
-	public static Command createCertificateCommand(String command, String binaryData) {
+	public Command createCertificateCommand(String command, String binaryData) {
 		return new CertificateCommand(null, null);
 	}
 
-	public static Command createListCommand(String command, String binaryData) {
+	public Command createListCommand(String command, String binaryData) {
 		return new ListCommand();
 	}
 
-	public static Command createVerifyCommand(String command, String binaryData) {
+	public Command createVerifyCommand(String command, String binaryData) {
 		return new VerifyCommand(null, null);
 	}
 
-	public static Command createFetchCommand(String command, String binaryData) {
+	public Command createFetchCommand(String command, String binaryData) {
 		return new FetchCommand(null, 0);
 	}
 }

@@ -26,7 +26,9 @@ class ServerWorkerThread extends Thread {
 			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
 			Command clientCommand = readAndBuildCommand(in);
-			out.write(clientCommand.execute());
+			String result = clientCommand.execute();
+			System.out.println("Result: " + result);
+			out.write(result);
 			out.flush();
 
 			in.close();
@@ -39,7 +41,6 @@ class ServerWorkerThread extends Thread {
 	}
 
 	private Command readAndBuildCommand(BufferedReader in) {
-		StringBuilder builder = new StringBuilder();
 		try {
 			int dataLength = Integer.parseInt(in.readLine());
 			String commandStr = in.readLine();
@@ -48,19 +49,23 @@ class ServerWorkerThread extends Thread {
 				return new UnsupportedCommand();
 			}
 
-			char[] buf = new char[4096];
-			int offset = 0;
-			while (offset < dataLength) {
-				int result = in.read(buf, offset, buf.length);
-				if (result == -1) {
-					return new UnsupportedCommand();
+			StringBuilder builder = new StringBuilder();
+			if (dataLength > 0) {
+				char[] buf = new char[4096];
+				int offset = 0;
+				while (offset < dataLength) {
+					int result = in.read(buf, offset, buf.length);
+					if (result == -1) {
+						return new UnsupportedCommand();
+					}
+					offset += result;
+					builder.append(buf);
 				}
-				offset += result;
-				builder.append(buf);
 			}
-			CommandParser.parseCommand(commandStr, builder.toString());
+			System.out.println("Command: " + commandStr);
+			return new CommandParser().parseCommand(commandStr, builder.toString());
 		} catch (Exception e) {
-			return new UnsupportedCommand();
+			e.printStackTrace();
 		}
 
 		return new UnsupportedCommand();
