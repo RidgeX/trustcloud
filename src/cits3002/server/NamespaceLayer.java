@@ -1,22 +1,20 @@
 package cits3002.server;
 
-import cits3002.util.FileUtil;
+import com.google.common.io.Files;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 public class NamespaceLayer {
 	private static final String CERT_DIR = "ns/certs";
 	private static final String FILE_DIR = "ns/files";
 
-
-	public void writeFile(String filename, String data, boolean isCertificate) throws IOException {
-		OutputStream out = new FileOutputStream(getFile(filename, isCertificate));
-		out.write(data.getBytes());
-		out.close();
+	public void writeFile(String filename, byte[] data, boolean isCertificate) throws IOException {
+		Files.write(data, getFile(filename, isCertificate));
 	}
 
-	public String readFile(String filename) throws IOException {
-		return FileUtil.readAllBytes(new FileInputStream(getFile(filename)));
+	public byte[] readFile(String filename) throws IOException {
+		return Files.toByteArray(getFile(filename));
 	}
 
 	public boolean fileExists(String filename, boolean isCertificate) {

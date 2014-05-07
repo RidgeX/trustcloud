@@ -1,19 +1,23 @@
 package cits3002.server.commands;
 
-import java.security.Signature;
+import cits3002.util.CommandUtil;
+import com.google.common.base.Preconditions;
 
-import static cits3002.util.CommandUtil.makeCommandString;
+import java.security.Signature;
 
 public class VerifyCommand implements Command {
 	private final String filename;
 	private final Signature signature;
 
 	public VerifyCommand(String filename, Signature signature) {
+		Preconditions.checkNotNull(filename);
+		Preconditions.checkNotNull(signature);
+
 		this.filename = filename;
 		this.signature = signature;
 	}
 
-	@Override public String execute() {
-		return makeCommandString("FAL", "Verify command not yet implemented.");
+	@Override public byte[] execute() throws Exception {
+		return CommandUtil.makeCommand("FAL", "Verify command not yet implemented.");
 	}
 }

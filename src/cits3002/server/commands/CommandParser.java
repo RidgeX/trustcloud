@@ -3,7 +3,7 @@ package cits3002.server.commands;
 import java.util.Scanner;
 
 public class CommandParser {
-	public Command parseCommand(String command, String binaryData) {
+	public Command parseCommand(String command, byte[] binaryData) {
 		Scanner sc = new Scanner(command);
 
 		String type = sc.next();
@@ -22,26 +22,26 @@ public class CommandParser {
 		return new UnsupportedCommand();
 	}
 
-	public Command createFileCommand(String command, String binaryData) {
+	public Command createFileCommand(String command, byte[] binaryData) {
 		Scanner sc = new Scanner(command);
 		sc.next();
 		String filename = sc.next();
 		return new FileCommand(filename, binaryData);
 	}
 
-	public Command createCertificateCommand(String command, String binaryData) {
+	public Command createCertificateCommand(String command, byte[] binaryData) {
 		return new CertificateCommand(null, null);
 	}
 
-	public Command createListCommand(String command, String binaryData) {
+	public Command createListCommand(String command, byte[] binaryData) {
 		return new ListCommand();
 	}
 
-	public Command createVerifyCommand(String command, String binaryData) {
+	public Command createVerifyCommand(String command, byte[] binaryData) {
 		return new VerifyCommand(null, null);
 	}
 
-	public Command createFetchCommand(String command, String binaryData) {
+	public Command createFetchCommand(String command, byte[] binaryData) {
 		return new FetchCommand(null, 0);
 	}
 }

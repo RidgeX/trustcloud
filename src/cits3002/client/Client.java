@@ -1,13 +1,13 @@
 package cits3002.client;
 
-import cits3002.util.FileUtil;
+import cits3002.util.CommandUtil;
+import com.google.common.io.CharStreams;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.*;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.InetAddress;
-
-import static cits3002.util.CommandUtil.makeCommandString;
 
 public class Client {
 	public static void main(String[] args) {
@@ -21,16 +21,18 @@ public class Client {
 			SSLSocket socket =
 					(SSLSocket) socketFactory.createSocket(InetAddress.getLoopbackAddress(), port);
 			socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-			out.write(makeCommandString("FLE test.txt", "THIS IS A NEW FILE!"));
+			InputStreamReader inp = new InputStreamReader(socket.getInputStream(), "utf-8");
+			OutputStream out = socket.getOutputStream();
+			out.write(CommandUtil.makeCommand("FLE test.txt", "THIS IS A NEW FILE!"));
 			out.flush();
 
-			System.out.println(FileUtil.readAllBytes(socket.getInputStream()));
+			System.out.println(CharStreams.toString(inp));
 
+			inp.close();
 			out.close();
 			socket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
