@@ -3,45 +3,45 @@ package cits3002.server.commands;
 import java.util.Scanner;
 
 public class CommandParser {
-	public Command parseCommand(String command, byte[] binaryData) {
-		Scanner sc = new Scanner(command);
+	public Command parseCommand(CommandTuple commandTuple) {
+		Scanner sc = new Scanner(commandTuple.commandString);
 
 		String type = sc.next();
 		if (type.equals("FLE")) {
-			return createFileCommand(command, binaryData);
+			return createFileCommand(commandTuple);
 		} else if (type.equals("CRT")) {
-			return createCertificateCommand(command, binaryData);
+			return createCertificateCommand(commandTuple);
 		} else if (type.equals("LST")) {
-			return createListCommand(command, binaryData);
+			return createListCommand(commandTuple);
 		} else if (type.equals("VFY")) {
-			return createVerifyCommand(command, binaryData);
+			return createVerifyCommand(commandTuple);
 		} else if (type.equals("FTC")) {
-			return createFetchCommand(command, binaryData);
+			return createFetchCommand(commandTuple);
 		}
 
 		return new UnsupportedCommand();
 	}
 
-	public Command createFileCommand(String command, byte[] binaryData) {
-		Scanner sc = new Scanner(command);
+	public Command createFileCommand(CommandTuple commandTuple) {
+		Scanner sc = new Scanner(commandTuple.commandString);
 		sc.next();
 		String filename = sc.next();
-		return new FileCommand(filename, binaryData);
+		return new FileCommand(filename, commandTuple.binaryData);
 	}
 
-	public Command createCertificateCommand(String command, byte[] binaryData) {
+	public Command createCertificateCommand(CommandTuple commandTuple) {
 		return new CertificateCommand(null, null);
 	}
 
-	public Command createListCommand(String command, byte[] binaryData) {
+	public Command createListCommand(CommandTuple commandTuple) {
 		return new ListCommand();
 	}
 
-	public Command createVerifyCommand(String command, byte[] binaryData) {
+	public Command createVerifyCommand(CommandTuple commandTuple) {
 		return new VerifyCommand(null, null);
 	}
 
-	public Command createFetchCommand(String command, byte[] binaryData) {
+	public Command createFetchCommand(CommandTuple commandTuple) {
 		return new FetchCommand(null, 0);
 	}
 }

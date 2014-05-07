@@ -23,8 +23,8 @@ public class FileCommand implements Command {
 			new NamespaceLayer().writeFile(filename, data, false);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return CommandUtil.makeCommand("FAL", "Could not create file.");
+			return CommandUtil.serialiseCommand("FAL", "Could not create file.");
 		}
-		return CommandUtil.makeCommand("SUC", "File " + filename + " created.");
+		return CommandUtil.serialiseCommand("SUC", "File " + filename + " created.");
 	}
 }

@@ -4,6 +4,6 @@ import cits3002.util.CommandUtil;
 
 public class UnsupportedCommand implements Command {
 	@Override public byte[] execute() throws Exception {
-		return CommandUtil.makeCommand("FAL", "No such command or malformed command.");
+		return CommandUtil.serialiseCommand("FAL", "No such command or malformed command.");
 	}
 }

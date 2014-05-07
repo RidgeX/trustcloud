@@ -19,6 +19,6 @@ public class CertificateCommand implements Command {
 
 	@Override public byte[] execute() throws Exception {
 		return CommandUtil
-				.makeCommand("FAL", "Certificate command not yet implemented.");
+				.serialiseCommand("FAL", "Certificate command not yet implemented.");
 	}
 }

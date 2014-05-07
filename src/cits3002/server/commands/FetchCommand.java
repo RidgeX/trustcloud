@@ -16,6 +16,6 @@ public class FetchCommand implements Command {
 	}
 
 	@Override public byte[] execute() throws Exception {
-		return CommandUtil.makeCommand("FAL", "Fetch command not yet implemented.");
+		return CommandUtil.serialiseCommand("FAL", "Fetch command not yet implemented.");
 	}
 }

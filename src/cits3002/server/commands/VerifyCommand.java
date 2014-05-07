@@ -18,6 +18,6 @@ public class VerifyCommand implements Command {
 	}
 
 	@Override public byte[] execute() throws Exception {
-		return CommandUtil.makeCommand("FAL", "Verify command not yet implemented.");
+		return CommandUtil.serialiseCommand("FAL", "Verify command not yet implemented.");
 	}
 }

@@ -1,17 +1,15 @@
 package cits3002.server;
 
-import cits3002.server.commands.Command;
-import cits3002.server.commands.CommandParser;
-import cits3002.server.commands.UnsupportedCommand;
+import cits3002.server.commands.*;
 import com.google.common.base.Preconditions;
-import com.google.common.io.CharStreams;
-import com.google.common.primitives.UnsignedInts;
+import com.google.common.io.ByteStreams;
 
 import javax.net.ssl.SSLSocket;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 class ServerWorkerThread extends Thread {
-	private static final int MAX_BINARY_DATA = 100 * 1024 * 1024; // 100 MB
 	private SSLSocket socket;
 
 	public ServerWorkerThread(SSLSocket socket) {
@@ -23,12 +21,12 @@ class ServerWorkerThread extends Thread {
 	public void run() {
 		System.out.println("Connection opened");
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "utf-8"));
+			InputStream in = socket.getInputStream();
 			OutputStream out = socket.getOutputStream();
 
 			Command clientCommand = readAndBuildCommand(in);
 			byte[] result = clientCommand.execute();
-			System.out.println("Result: " + new String(result, "utf-8"));
+			System.out.println("Result: " + new String(result, "ISO-8859-1"));
 			out.write(result);
 			out.flush();
 
@@ -41,20 +39,18 @@ class ServerWorkerThread extends Thread {
 		System.out.println("Connection closed");
 	}
 
-	private Command readAndBuildCommand(BufferedReader in) {
+	private Command readAndBuildCommand(InputStream in) {
+		CommandReader commandReader = new CommandReader();
 		try {
-			int dataLength = UnsignedInts.parseUnsignedInt(in.readLine());
-			String commandStr = in.readLine();
-
-			if (dataLength > MAX_BINARY_DATA) {
+			ByteStreams.readBytes(in, commandReader);
+			CommandTuple commandTuple = commandReader.getResult();
+			if (commandTuple == null) {
 				return new UnsupportedCommand();
 			}
 
-			String binaryData = CharStreams.toString(in);
-
-			System.out.println("Command: " + commandStr);
-			return new CommandParser().parseCommand(commandStr, binaryData.getBytes("utf-8"));
-		} catch (Exception e) {
+			System.out.println("Command: " + commandTuple.commandString);
+			return new CommandParser().parseCommand(commandTuple);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
