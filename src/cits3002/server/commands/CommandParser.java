@@ -1,47 +1,64 @@
 package cits3002.server.commands;
 
-import java.util.Scanner;
+import cits3002.util.HashCommand;
+import com.google.common.base.Preconditions;
+
+import java.security.NoSuchAlgorithmException;
 
 public class CommandParser {
 	public Command parseCommand(CommandTuple commandTuple) {
-		Scanner sc = new Scanner(commandTuple.commandString);
+		Preconditions.checkArgument(commandTuple.args.length >= 1);
 
-		String type = sc.next();
-		if (type.equals("FLE")) {
-			return createFileCommand(commandTuple);
-		} else if (type.equals("CRT")) {
-			return createCertificateCommand(commandTuple);
-		} else if (type.equals("LST")) {
-			return createListCommand(commandTuple);
-		} else if (type.equals("VFY")) {
-			return createVerifyCommand(commandTuple);
-		} else if (type.equals("FTC")) {
-			return createFetchCommand(commandTuple);
+		String type = commandTuple.args[0];
+
+		try {
+			if (type.equals("FLE")) {
+				return createFileCommand(commandTuple);
+			} else if (type.equals("CRT")) {
+				return createCertificateCommand(commandTuple);
+			} else if (type.equals("LST")) {
+				return createListCommand(commandTuple);
+			} else if (type.equals("VFY")) {
+				return createVerifyCommand(commandTuple);
+			} else if (type.equals("FTC")) {
+				return createFetchCommand(commandTuple);
+			} else if (type.equals("HSH")) {
+				return createHashCommand(commandTuple);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		return new UnsupportedCommand();
 	}
 
-	public Command createFileCommand(CommandTuple commandTuple) {
-		Scanner sc = new Scanner(commandTuple.commandString);
-		sc.next();
-		String filename = sc.next();
-		return new FileCommand(filename, commandTuple.binaryData);
+	private Command createHashCommand(CommandTuple commandTuple) throws NoSuchAlgorithmException {
+		Preconditions.checkArgument(commandTuple.args.length == 2);
+
+		String filename = commandTuple.args[1];
+		return new HashCommand(filename);
 	}
 
-	public Command createCertificateCommand(CommandTuple commandTuple) {
+	private Command createFileCommand(CommandTuple commandTuple) {
+		Preconditions.checkArgument(commandTuple.args.length == 2);
+
+		String filename = commandTuple.args[1];
+		return new FileCommand(filename, commandTuple.data);
+	}
+
+	private Command createCertificateCommand(CommandTuple commandTuple) {
 		return new CertificateCommand(null, null);
 	}
 
-	public Command createListCommand(CommandTuple commandTuple) {
+	private Command createListCommand(CommandTuple commandTuple) {
 		return new ListCommand();
 	}
 
-	public Command createVerifyCommand(CommandTuple commandTuple) {
+	private Command createVerifyCommand(CommandTuple commandTuple) {
 		return new VerifyCommand(null, null);
 	}
 
-	public Command createFetchCommand(CommandTuple commandTuple) {
+	private Command createFetchCommand(CommandTuple commandTuple) {
 		return new FetchCommand(null, 0);
 	}
 }

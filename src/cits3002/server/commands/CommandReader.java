@@ -1,5 +1,6 @@
 package cits3002.server.commands;
 
+import cits3002.util.CommandUtil;
 import com.google.common.io.ByteProcessor;
 import com.google.common.primitives.UnsignedInts;
 
@@ -11,10 +12,10 @@ public class CommandReader implements ByteProcessor<CommandTuple> {
 	private static final int MAX_BINARY_DATA = 100 * 1024 * 1024; // 100 MB
 
 	private ByteArrayOutputStream dataLengthBytes;
-	private ByteArrayOutputStream commandStringBytes;
+	private ByteArrayOutputStream argsStringBytes;
 	private ByteArrayOutputStream dataBytes;
 	private int dataLength;
-	private String commandString;
+	private String argsString;
 	private State state;
 
 
@@ -27,16 +28,15 @@ public class CommandReader implements ByteProcessor<CommandTuple> {
 
 	public CommandReader() {
 		this.dataLengthBytes = new ByteArrayOutputStream();
-		this.commandStringBytes = new ByteArrayOutputStream();
+		this.argsStringBytes = new ByteArrayOutputStream();
 		this.dataBytes = new ByteArrayOutputStream();
 		this.state = State.READING_DATA_LENGTH;
 	}
 
 	@Override public boolean processBytes(byte[] bytes, int off, int len) throws IOException {
 		int idx = 0;
-		System.out.println("Read " + new String(bytes, "ISO-8859-1"));
 		while (idx < len) {
-			idx += processBytesInteral(bytes, off + idx, len - idx);
+			idx += processBytesInternal(bytes, off + idx, len - idx);
 		}
 		return state != State.DONE;
 	}
@@ -45,11 +45,11 @@ public class CommandReader implements ByteProcessor<CommandTuple> {
 		if (state != State.DONE) {
 			return null;
 		} else {
-			return new CommandTuple(commandString, dataBytes.toByteArray());
+			return CommandUtil.makeCommandTuple(argsString, dataBytes.toByteArray());
 		}
 	}
 
-	private int processBytesInteral(byte[] bytes, int off, int len)
+	private int processBytesInternal(byte[] bytes, int off, int len)
 			throws UnsupportedEncodingException {
 		int lastIdx = 0;
 		switch (state) {
@@ -61,6 +61,7 @@ public class CommandReader implements ByteProcessor<CommandTuple> {
 
 				if (lastIdx < len && bytes[off + lastIdx] == '\n') {
 					dataLength = UnsignedInts.parseUnsignedInt(dataLengthBytes.toString("ISO-8859-1"));
+
 					if (dataLength > MAX_BINARY_DATA) {
 						throw new IllegalArgumentException();
 					}
@@ -72,13 +73,15 @@ public class CommandReader implements ByteProcessor<CommandTuple> {
 				while (lastIdx < len && bytes[off + lastIdx] != '\n') {
 					lastIdx++;
 				}
-				commandStringBytes.write(bytes, off, lastIdx);
-				System.out
-						.println("Reading command, so far: " + commandStringBytes.toString("ISO-8859-1") + "'");
+				argsStringBytes.write(bytes, off, lastIdx);
 
 				if (lastIdx < len && bytes[off + lastIdx] == '\n') {
-					commandString = commandStringBytes.toString("ISO-8859-1");
-					state = State.READING_DATA;
+					argsString = argsStringBytes.toString("ISO-8859-1");
+					if (dataLength != 0) {
+						state = State.READING_DATA;
+					} else {
+						state = State.DONE;
+					}
 					lastIdx++;
 				}
 

@@ -1,8 +1,11 @@
 package cits3002.server;
 
-import cits3002.server.commands.*;
+import cits3002.server.commands.Command;
+import cits3002.server.commands.CommandParser;
+import cits3002.server.commands.CommandTuple;
+import cits3002.server.commands.UnsupportedCommand;
+import cits3002.util.CommandUtil;
 import com.google.common.base.Preconditions;
-import com.google.common.io.ByteStreams;
 
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
@@ -40,15 +43,13 @@ class ServerWorkerThread extends Thread {
 	}
 
 	private Command readAndBuildCommand(InputStream in) {
-		CommandReader commandReader = new CommandReader();
 		try {
-			ByteStreams.readBytes(in, commandReader);
-			CommandTuple commandTuple = commandReader.getResult();
+			CommandTuple commandTuple = CommandUtil.parseCommandData(in);
 			if (commandTuple == null) {
 				return new UnsupportedCommand();
 			}
 
-			System.out.println("Command: " + commandTuple.commandString);
+			System.out.println("Command: " + commandTuple.getArgumentString());
 			return new CommandParser().parseCommand(commandTuple);
 		} catch (IOException e) {
 			e.printStackTrace();
