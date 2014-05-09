@@ -1,6 +1,7 @@
 package cits3002.server.commands;
 
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.UnsignedInts;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -58,6 +59,10 @@ public class CommandParser {
 	}
 
 	private Command createFetchCommand(CommandTuple commandTuple) {
-		return new FetchCommand(null, 0);
+		Preconditions.checkArgument(commandTuple.args.length == 3);
+
+		String filename = commandTuple.args[1];
+		int requiredCircumference = UnsignedInts.parseUnsignedInt(commandTuple.args[2]);
+		return new FetchCommand(filename, requiredCircumference);
 	}
 }

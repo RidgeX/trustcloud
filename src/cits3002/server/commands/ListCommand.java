@@ -6,7 +6,7 @@ import cits3002.util.CommandUtil;
 import java.util.List;
 
 public class ListCommand implements Command {
-	private NamespaceLayer namespaceLayer;
+	private final NamespaceLayer namespaceLayer;
 
 	public ListCommand() {
 		this.namespaceLayer = new NamespaceLayer();
