@@ -1,6 +1,5 @@
 package cits3002.server.commands;
 
-import cits3002.util.HashCommand;
 import com.google.common.base.Preconditions;
 
 import java.security.NoSuchAlgorithmException;

@@ -53,12 +53,16 @@ public class Client {
 				Files.toByteArray(new File("../res/test.crt")));
 
 		CommandTuple hashCommand = CommandUtil.makeCommandTuple("HSH test.txt");
+		CommandTuple listCommand = CommandUtil.makeCommandTuple("LST");
 
 		CommandTuple uploadResult = runCommand(uploadCommand, port);
 		CommandTuple hashResult = runCommand(hashCommand, port);
+		CommandTuple listResult = runCommand(listCommand, port);
 
 		System.out.println("Upload result: " + uploadResult.getArgumentString());
 		System.out.println("Hash result: " + hashResult.getArgumentString());
 		System.out.println("Hash: " + BaseEncoding.base16().lowerCase().encode(hashResult.data));
+		System.out.println("List:");
+		System.out.println(listResult.getDataString());
 	}
 }
