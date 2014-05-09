@@ -1,10 +1,10 @@
 package cits3002.server.commands;
 
 import cits3002.server.NamespaceLayer;
-import cits3002.server.commands.Command;
 import cits3002.util.CommandUtil;
 import com.google.common.base.Preconditions;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -24,8 +24,14 @@ public class HashCommand implements Command {
 	}
 
 	@Override public byte[] execute() throws Exception {
-		return CommandUtil.serialiseCommand(
-				"SUC",
-				digestInstance.digest(namespaceLayer.readFile(filename)));
+		try {
+			return CommandUtil.serialiseCommand(
+					"SUC",
+					digestInstance.digest(namespaceLayer.readFile(filename)));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return CommandUtil.serialiseCommand("FAL", "Could not hash file");
 	}
 }

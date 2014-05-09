@@ -23,6 +23,7 @@ class ServerWorkerThread extends Thread {
 
 	public void run() {
 		System.out.println("Connection opened");
+
 		try {
 			InputStream in = socket.getInputStream();
 			OutputStream out = socket.getOutputStream();
@@ -32,13 +33,19 @@ class ServerWorkerThread extends Thread {
 			System.out.println("Result: " + new String(result, "ISO-8859-1"));
 			out.write(result);
 			out.flush();
-
 			in.close();
 			out.close();
-			socket.close();
+
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
 		System.out.println("Connection closed");
 	}
 

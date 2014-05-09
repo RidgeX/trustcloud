@@ -13,12 +13,17 @@ public class ListCommand implements Command {
 	}
 
 	@Override public byte[] execute() throws Exception {
-		List<String> files = namespaceLayer.getFileList();
-		StringBuilder builder = new StringBuilder();
-		for (String f : files) {
-			builder.append(namespaceLayer.describeFile(f));
-			builder.append("\n");
+		try {
+			List<String> files = namespaceLayer.getFileList();
+			StringBuilder builder = new StringBuilder();
+			for (String f : files) {
+				builder.append(namespaceLayer.describeFile(f));
+				builder.append("\n");
+			}
+			return CommandUtil.serialiseCommand("SUC", builder.toString());		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return CommandUtil.serialiseCommand("SUC", builder.toString());
+
+		return CommandUtil.serialiseCommand("FAL", "Could not list files");
 	}
 }

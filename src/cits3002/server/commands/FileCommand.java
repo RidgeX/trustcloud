@@ -21,10 +21,11 @@ public class FileCommand implements Command {
 	@Override public byte[] execute() throws Exception {
 		try {
 			new NamespaceLayer().writeFile(filename, data, false);
+			return CommandUtil.serialiseCommand("SUC", "File " + filename + " created.");
 		} catch (IOException e) {
 			e.printStackTrace();
-			return CommandUtil.serialiseCommand("FAL", "Could not create file.");
 		}
-		return CommandUtil.serialiseCommand("SUC", "File " + filename + " created.");
+
+		return CommandUtil.serialiseCommand("FAL", "Could not create file");
 	}
 }

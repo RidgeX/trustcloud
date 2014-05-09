@@ -47,7 +47,10 @@ public class CommandParser {
 	}
 
 	private Command createCertificateCommand(CommandTuple commandTuple) {
-		return new CertificateCommand(null, null);
+		Preconditions.checkArgument(commandTuple.args.length == 2);
+
+		String filename = commandTuple.args[1];
+		return new CertificateCommand(filename, commandTuple.data);
 	}
 
 	private Command createListCommand(CommandTuple commandTuple) {

@@ -20,6 +20,12 @@ public class FetchCommand implements Command {
 
 	@Override public byte[] execute() throws Exception {
 		// TODO: Check circumference once signing is implemented.
-		return CommandUtil.serialiseCommand("SUC", namespaceLayer.readFile(filename));
+		try {
+			return CommandUtil.serialiseCommand("SUC", namespaceLayer.readFile(filename));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return CommandUtil.serialiseCommand("FAL", "Could not fetch file");
 	}
 }
