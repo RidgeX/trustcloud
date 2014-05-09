@@ -1,0 +1,77 @@
+Commands:
+
+Two newline terminated lines followed by binary data. The length of the binary data is specified on the first line as an ascii unsigned integer. Example command:
+
+8\n
+FLE filetoupload.txt\n
+filedata
+
+Hash command
+0\n
+HSH <filename>\n
+
+Hash response
+20\n
+SUC\n
+<sha1 hash>
+
+Add/replace file command
+<file length>\n
+FLE <filename>\n
+<file>
+
+Add/replace file response
+0\n
+SUC\n
+
+Add/replace certificate command
+<file length>\n
+CRT <filename>\n
+<file>
+
+Add/replace certificate command
+0\n
+SUC\n
+
+List files command
+0\n
+LST\n
+
+List files response
+<string description length>\n
+SUC\n
+<string description>
+
+Verify file command
+<signature length>\n
+VFY <filename>\n
+<signature>
+
+Verify file response
+0\n
+SUC\n
+
+Fetch command
+0\n
+FTC <filename>\n
+
+Fetch response
+<file length>\n
+SUC\n
+<file>
+
+Responses:
+Same format as commands. Example response:
+8\n
+SUC\n
+filedata
+
+Success response:
+<binary data length>\n
+SUC\n
+<binary data>
+
+Fail response:
+<binary data length>\n
+FAL\n
+<binary data>
