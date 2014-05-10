@@ -1,77 +1,96 @@
 package cits3002.server;
 
-import cits3002.util.SecurityUtil;
-import com.google.common.base.Charsets;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
-import com.google.common.io.Files;
-
-import java.io.*;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Scanner;
+import cits3002.common.SecurityUtil;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class TrustLayer {
-	private static final String SIGN_DIR = "ns/sigs";
+	private static final File SIGS_DIR = new File("ns/sigs");
 
-	private final NamespaceLayer namespaceLayer;
-	private final Multimap<String, PublicKey> fileToSigs;
-
-	public TrustLayer() {
-		this.namespaceLayer = new NamespaceLayer();
-		this.fileToSigs = MultimapBuilder.hashKeys().hashSetValues().build();
-		loadFileToSigMap();
+	static {
+		if (!SIGS_DIR.exists()) SIGS_DIR.mkdirs();
 	}
 
-	public boolean addSignatureForFile(String filename, PublicKey pubKey, byte[] sigData) {
-		try {
-			byte[] fileData = namespaceLayer.readFile(filename);
-			if (!SecurityUtil.verifyData(pubKey, fileData, sigData)) {
-				return false;
-			}
+	private static Map<String, Properties> fileToSigs;
 
-			if (fileToSigs.containsEntry(filename, pubKey)) {
-				return false;
+	public static void init() throws IOException {
+		fileToSigs = new HashMap<String, Properties>();
+		for (File f : NamespaceLayer.listFiles()) {
+			String fileName = f.getName();
+			if (getSigFile(fileName).exists()) {
+				fileToSigs.put(fileName, loadSignatures(fileName));
 			}
-
-			fileToSigs.put(filename, pubKey);
-			File f = new File(SIGN_DIR, filename + ".sig");
-			Files.touch(f);
-			Files.append(SecurityUtil.packSignature(pubKey, sigData) + "\n", f, Charsets.ISO_8859_1);
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
-		return false;
 	}
 
-	private void loadFileToSigMap()  {
-		File signDir = new File(SIGN_DIR);
-		for (File f : signDir.listFiles()) {
+	public static boolean addSignature(String fileName, String certName, byte[] sigData) throws IOException {
+		Properties sigs = fileToSigs.get(fileName);
+		if (sigs == null) {
+			sigs = new Properties();
+		} else if (sigs.containsKey(certName)) {
+			return false;
+		}
+		sigs.put(certName, SecurityUtil.encodeSignature(sigData));
+		saveSignatures(fileName, sigs);
+		return true;
+	}
+
+	public static void clearSignatures(String fileName) throws IOException {
+		File sigFile = getSigFile(fileName);
+		if (sigFile.exists()) {
+			sigFile.delete();
+		}
+		if (fileToSigs.containsKey(fileName)) {
+			fileToSigs.remove(fileName);
+		}
+		for (String otherFileName : fileToSigs.keySet()) {
+			Properties sigs = fileToSigs.get(otherFileName);
+			if (sigs.containsKey(fileName)) {
+				sigs.remove(fileName);
+				saveSignatures(otherFileName, sigs);
+			}
+		}
+	}
+
+	private static Properties loadSignatures(String fileName) throws IOException {
+		System.err.println("Loading " + fileName + "...");
+
+		Properties sigs = new Properties();
+		sigs.load(new FileReader(getSigFile(fileName)));
+
+		Properties validSigs = new Properties();
+		for (String certName : sigs.stringPropertyNames()) {
+			System.err.print("    Validating " + certName + "... ");
+			String sig = sigs.getProperty(certName);
 			try {
-				String name = f.getName();
-				String path = f.getPath();
-				if (name.endsWith(".sig")) {
-					loadSigMapForFile(name.substring(0, name.length() - 4), path);
+				X509Certificate cert = SecurityUtil.loadCertificate(NamespaceLayer.readFile(certName));
+				SecurityUtil.checkCertificate(cert);
+				byte[] hash = SecurityUtil.makeHash(NamespaceLayer.readFile(fileName));
+				byte[] sigData = SecurityUtil.decodeSignature(sig);
+				if (!SecurityUtil.checkSignature(cert.getPublicKey(), hash, sigData)) {
+					throw new SecurityException("Validation failed");
 				}
+				validSigs.put(certName, sig);
+				System.err.println("[OK]");
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.err.println("[FAIL]");
 			}
 		}
+
+		return validSigs;
 	}
 
-	// Assumes valid signatures.
-	private void loadSigMapForFile(String filename, String sigMapFilename)
-			throws FileNotFoundException, InvalidKeySpecException, NoSuchAlgorithmException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				new FileInputStream(sigMapFilename), Charsets.ISO_8859_1));
-		Scanner sc = new Scanner(in);
-		while (sc.hasNext()) {
-			String base64PubKey = sc.next();
-			fileToSigs.put(filename, SecurityUtil.loadBase64PublicKey(base64PubKey));
-			sc.next(); // Ignore signature for now.
-		}
+	private static void saveSignatures(String fileName, Properties sigs) throws IOException {
+		sigs.store(new FileWriter(getSigFile(fileName)), null);
+	}
+
+	private static File getSigFile(String fileName) {
+		return new File(SIGS_DIR, fileName + ".sig");
 	}
 }

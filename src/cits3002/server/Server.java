@@ -1,36 +1,46 @@
 package cits3002.server;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
+import java.io.IOException;
+import java.security.Security;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import java.io.IOException;
-import java.security.Security;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class Server {
+	private static final String[] ANON_CIPHERS = new String[] {
+		"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
+		"TLS_DH_anon_WITH_AES_256_CBC_SHA",
+		"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
+		"TLS_DH_anon_WITH_AES_128_CBC_SHA"
+	};
+	private static final int DEFAULT_PORT = 4433;
+
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		int port;
+		if (args.length == 1) {
+			port = Integer.parseInt(args[0]);
+		} else {
+			port = DEFAULT_PORT;
+		}
 		Server server = new Server();
-		server.run(4433);
+		server.run(port);
 	}
 
-	public void run(int port) {
-		try {
-			SSLServerSocketFactory ssocketFactory =
-					(SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-			SSLServerSocket ssocket = (SSLServerSocket) ssocketFactory.createServerSocket(port);
-			while (true) {
-				SSLSocket socket = (SSLSocket) ssocket.accept();
-				socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
-				ServerWorkerThread worker = new ServerWorkerThread(socket);
-				worker.start();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void run(int port) throws IOException {
+		TrustLayer.init();
+		System.err.println("Starting server");
+		SSLServerSocketFactory ssocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+		SSLServerSocket ssocket = (SSLServerSocket) ssocketFactory.createServerSocket(port);
+		while (true) {
+			SSLSocket socket = (SSLSocket) ssocket.accept();
+			socket.setEnabledCipherSuites(ANON_CIPHERS);
+			WorkerThread worker = new WorkerThread(socket);
+			worker.start();
 		}
 	}
 }
