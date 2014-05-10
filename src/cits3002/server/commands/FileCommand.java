@@ -20,6 +20,7 @@ public class FileCommand implements Command {
 
 	@Override public byte[] execute() throws Exception {
 		try {
+			// TODO: Revoke signatures on file overwrite/delete.
 			new NamespaceLayer().writeFile(filename, data, false);
 			return CommandUtil.serialiseCommand("SUC", "File " + filename + " created.");
 		} catch (IOException e) {
