@@ -2,6 +2,7 @@ package cits3002.common.handlers;
 
 import cits3002.common.CommandHandler;
 import cits3002.common.Message;
+import cits3002.common.RingVerifier;
 import cits3002.server.NamespaceLayer;
 import com.google.common.base.Preconditions;
 
@@ -18,7 +19,10 @@ public class GetHandler extends CommandHandler {
 	@Override
 	public Message execute() {
 		try {
-			// TODO: Check circumference once signing is implemented.
+			RingVerifier verifier = new RingVerifier(fileName);
+			if (!verifier.testLength(minRingLength)) {
+				return new Message(RESULT_FAIL, "Minimum trust requirement not met.");
+			}
 			byte[] data = NamespaceLayer.readFile(fileName);
 			return new Message(RESULT_OK, data);
 		} catch (Exception e) {

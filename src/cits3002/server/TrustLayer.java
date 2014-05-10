@@ -17,7 +17,7 @@ public class TrustLayer {
 		if (!SIGS_DIR.exists()) SIGS_DIR.mkdirs();
 	}
 
-	private static Map<String, Properties> fileToSigs;
+	public static Map<String, Properties> fileToSigs;
 
 	public static void init() throws IOException {
 		fileToSigs = new HashMap<String, Properties>();
@@ -33,6 +33,7 @@ public class TrustLayer {
 		Properties sigs = fileToSigs.get(fileName);
 		if (sigs == null) {
 			sigs = new Properties();
+			fileToSigs.put(fileName, sigs);
 		} else if (sigs.containsKey(certName)) {
 			return false;
 		}
