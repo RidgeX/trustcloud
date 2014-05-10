@@ -1,77 +1,76 @@
-Commands:
-
-Two newline terminated lines followed by binary data. The length of the binary data is specified on the first line as an ascii unsigned integer. Example command:
+[Commands]
+Two newline terminated lines followed by binary data. The length of the binary data is specified on the first line as an ASCII unsigned integer. Example command:
 
 8\n
-FLE filetoupload.txt\n
-filedata
+PUT|test.txt|0\n
+testdata
 
-Hash command
+Add/replace file command:
+<file length>\n
+PUT|<filename>|0\n
+<file>
+
+Add/replace file response:
 0\n
-HSH <filename>\n
+OK\n
 
-Hash response
+Add/replace certificate command:
+<file length>\n
+PUT|<filename>|1\n
+<file>
+
+Add/replace certificate response:
+0\n
+OK\n
+
+Fetch command:
+0\n
+GET|<filename>|<min-ring-length>\n
+
+Fetch response:
+<file length>\n
+OK\n
+<file>
+
+List files command:
+0\n
+LIST\n
+
+List files response:
+<description length>\n
+OK\n
+<description>
+
+Hash command:
+0\n
+HASH|<filename>\n
+
+Hash response:
 20\n
-SUC\n
-<sha1 hash>
+OK\n
+<SHA1 hash bytes>
 
-Add/replace file command
-<file length>\n
-FLE <filename>\n
-<file>
-
-Add/replace file response
-0\n
-SUC\n
-
-Add/replace certificate command
-<file length>\n
-CRT <filename>\n
-<file>
-
-Add/replace certificate command
-0\n
-SUC\n
-
-List files command
-0\n
-LST\n
-
-List files response
-<string description length>\n
-SUC\n
-<string description>
-
-Verify file command
-<signature length>\n
-VFY <filename>\n
+Vouch file command:
+128\n
+VOUCH|<filename>|<certname>\n
 <signature>
 
-Verify file response
+Vouch file response:
 0\n
-SUC\n
+OK\n
 
-Fetch command
-0\n
-FTC <filename>\n
-
-Fetch response
-<file length>\n
-SUC\n
-<file>
-
-Responses:
+[Responses]
 Same format as commands. Example response:
-8\n
-SUC\n
-filedata
+15\n
+OK\n
+Example message
 
 Success response:
 <binary data length>\n
-SUC\n
+OK\n
 <binary data>
 
 Fail response:
 <binary data length>\n
-FAL\n
+FAIL\n
 <binary data>
