@@ -1,23 +1,37 @@
 package cits3002.server.commands;
 
+import cits3002.server.TrustLayer;
 import cits3002.util.CommandUtil;
+import cits3002.util.SecurityUtil;
 import com.google.common.base.Preconditions;
-
-import java.security.Signature;
 
 public class VerifyCommand implements Command {
 	private final String filename;
-	private final Signature signature;
+	private final byte[] data;
+	private final TrustLayer trustLayer;
 
-	public VerifyCommand(String filename, Signature signature) {
+	public VerifyCommand(String filename, byte[] data) {
 		Preconditions.checkNotNull(filename);
-		Preconditions.checkNotNull(signature);
+		Preconditions.checkNotNull(data);
 
 		this.filename = filename;
-		this.signature = signature;
+		this.data = data;
+		this.trustLayer = new TrustLayer();
 	}
 
 	@Override public byte[] execute() throws Exception {
-		return CommandUtil.serialiseCommand("FAL", "Verify command not yet implemented.");
+		try {
+			SecurityUtil.UnpackedSignature unpackedSignature = SecurityUtil.unpackSignature(data);
+			if (trustLayer.addSignatureForFile(
+					filename,
+					unpackedSignature.publicKey,
+					unpackedSignature.signatureData)) {
+				return CommandUtil.serialiseCommand("SUC", "Verified file");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return CommandUtil.serialiseCommand("FAL", "Could not verify file");
 	}
 }

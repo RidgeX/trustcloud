@@ -2,12 +2,10 @@ package cits3002.server.commands;
 
 import cits3002.server.NamespaceLayer;
 import cits3002.util.CommandUtil;
+import cits3002.util.SecurityUtil;
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.openssl.PEMParser;
 
-import java.io.StringReader;
 import java.security.cert.X509Certificate;
 
 public class CertificateCommand implements Command {
@@ -26,14 +24,10 @@ public class CertificateCommand implements Command {
 
 	@Override public byte[] execute() throws Exception {
 		try {
-			PEMParser parser = new PEMParser(new StringReader(new String(data, "ISO-8859-1")));
-			X509CertificateHolder obj = (X509CertificateHolder) parser.readObject();
-			X509Certificate certificate =
-					new JcaX509CertificateConverter().setProvider("BC").getCertificate(obj);
-			certificate.checkValidity();
-			certificate.verify(certificate.getPublicKey());
+			X509Certificate certificate = SecurityUtil.loadAndVerifyCertificate(
+					new String(data, Charsets.ISO_8859_1));
 			namespaceLayer.writeFile(filename, data, true);
-			
+
 			return CommandUtil.serialiseCommand("SUC", "Certificate verified");
 		} catch (Exception e) {
 			e.printStackTrace();

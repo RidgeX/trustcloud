@@ -1,9 +1,8 @@
 package cits3002.server.commands;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-
-import java.io.UnsupportedEncodingException;
 
 public class CommandTuple {
 	public final String[] args;
@@ -21,7 +20,7 @@ public class CommandTuple {
 		return Joiner.on(' ').join(args);
 	}
 
-	public String getDataString() throws UnsupportedEncodingException {
-		return new String(data, "ISO-8859-1");
+	public String getDataString() {
+		return new String(data, Charsets.ISO_8859_1);
 	}
 }

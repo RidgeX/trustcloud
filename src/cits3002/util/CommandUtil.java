@@ -2,6 +2,7 @@ package cits3002.util;
 
 import cits3002.server.commands.CommandReader;
 import cits3002.server.commands.CommandTuple;
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -14,16 +15,16 @@ import java.io.InputStream;
 public class CommandUtil {
 	public static byte[] serialiseCommand(String argsString, byte[] data) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		buffer.write(Integer.toString(data.length).getBytes("ISO-8859-1"));
-		buffer.write("\n".getBytes("ISO-8859-1"));
-		buffer.write(argsString.getBytes("ISO-8859-1"));
-		buffer.write("\n".getBytes("ISO-8859-1"));
+		buffer.write(Integer.toString(data.length).getBytes(Charsets.ISO_8859_1));
+		buffer.write("\n".getBytes(Charsets.ISO_8859_1));
+		buffer.write(argsString.getBytes(Charsets.ISO_8859_1));
+		buffer.write("\n".getBytes(Charsets.ISO_8859_1));
 		buffer.write(data);
 		return buffer.toByteArray();
 	}
 
 	public static byte[] serialiseCommand(String argsString, String data) throws IOException {
-		return serialiseCommand(argsString, data.getBytes("ISO-8859-1"));
+		return serialiseCommand(argsString, data.getBytes(Charsets.ISO_8859_1));
 	}
 
 	public static byte[] serialiseCommand(String[] args, byte[] data) throws IOException {
@@ -48,6 +49,10 @@ public class CommandUtil {
 		return new CommandTuple(args, data);
 	}
 
+	public static CommandTuple makeCommandTuple(String args, String data) {
+		return makeCommandTuple(args, data.getBytes(Charsets.ISO_8859_1));
+	}
+
 	public static CommandTuple parseCommandData(InputStream in) throws IOException {
 		CommandReader commandReader = new CommandReader();
 		ByteStreams.readBytes(in, commandReader);
@@ -61,6 +66,6 @@ public class CommandUtil {
 	}
 
 	public static CommandTuple parseCommandData(String allData) throws IOException {
-		return parseCommandData(allData.getBytes("ISO-8859-1"));
+		return parseCommandData(allData.getBytes(Charsets.ISO_8859_1));
 	}
 }

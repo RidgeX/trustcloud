@@ -71,5 +71,4 @@ public class NamespaceLayer {
 	private File getFile(String filename, boolean isCertificate) {
 		return new File("./" + (isCertificate ? CERT_DIR : FILE_DIR) + "/" + filename);
 	}
-
 }

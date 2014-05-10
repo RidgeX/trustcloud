@@ -10,11 +10,7 @@ import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
 import java.io.File;
 import java.io.FileReader;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -29,7 +25,7 @@ public class KeyLoader {
 		// http://www.hypersocket.com/content/?p=90
 
 		try {
-			File keyFile = new File("res/test.key");
+			File keyFile = new File(args[0]);
 			PEMParser parser = new PEMParser(new FileReader(keyFile));
 			Object pairObject = parser.readObject();
 
@@ -60,7 +56,7 @@ public class KeyLoader {
 			System.out.println(publicKey.getFormat());
 			System.out.println(privateKey.getFormat());
 
-			File certFile = new File("res/test.crt");
+			File certFile = new File(args[1]);
 			parser = new PEMParser(new FileReader(certFile));
 			X509CertificateHolder obj = (X509CertificateHolder) parser.readObject();
 			Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(obj);

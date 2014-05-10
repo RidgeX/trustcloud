@@ -2,6 +2,7 @@ package cits3002.client;
 
 import cits3002.server.commands.CommandTuple;
 import cits3002.util.CommandUtil;
+import cits3002.util.SecurityUtil;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.CharStreams;
 import com.google.common.io.Files;
@@ -9,14 +10,12 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+
+import static com.google.common.base.Charsets.ISO_8859_1;
 
 public class Client {
 	private final MessageDigest digestInstance;
@@ -29,7 +28,9 @@ public class Client {
 		digestInstance = MessageDigest.getInstance("SHA-1");
 	}
 
-	public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+	public static void main(String[] args)
+			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
+			NoSuchProviderException, SignatureException {
 		Client client = new Client();
 		client.run(4433);
 	}
@@ -41,7 +42,7 @@ public class Client {
 					(SSLSocket) socketFactory.createSocket(InetAddress.getLoopbackAddress(), port);
 			socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
 
-			InputStreamReader inp = new InputStreamReader(socket.getInputStream(), "ISO-8859-1");
+			InputStreamReader inp = new InputStreamReader(socket.getInputStream(), ISO_8859_1);
 			OutputStream out = socket.getOutputStream();
 
 			out.write(CommandUtil.serialiseCommand(commandTuple));
@@ -61,7 +62,9 @@ public class Client {
 		return null;
 	}
 
-	public void run(int port) throws IOException {
+	public void run(int port)
+			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException,
+			NoSuchProviderException, SignatureException {
 		CommandTuple uploadCommand = CommandUtil.makeCommandTuple(
 				"FLE test.txt",
 				Files.toByteArray(new File("../res/test.crt")));
@@ -79,12 +82,26 @@ public class Client {
 				"CRT test2.crt",
 				Files.toByteArray(new File("../res/hello.rsa")));
 
+		String keyData = CharStreams.toString(
+				new BufferedReader(new InputStreamReader(new FileInputStream("../res/test.key"), ISO_8859_1)));
+		KeyPair keyPair = SecurityUtil.loadKeyPair(keyData, null);
+		byte[] fileData = Files.toByteArray(new File("../res/test.crt"));
+		byte[] sigData = SecurityUtil.signData(fileData, keyPair);
+		fileData[0]++;
+		byte[] badSigData = SecurityUtil.signData(fileData, keyPair);
+		String badSigString = SecurityUtil.packSignature(keyPair.getPublic(), badSigData);
+		String sigString = SecurityUtil.packSignature(keyPair.getPublic(), sigData);
+		CommandTuple badVerifyCommand = CommandUtil.makeCommandTuple("VFY test.txt", badSigString);
+		CommandTuple verifyCommand = CommandUtil.makeCommandTuple("VFY test.txt", sigString);
+
 		CommandTuple uploadResult = runCommand(uploadCommand, port);
 		CommandTuple hashResult = runCommand(hashCommand, port);
 		CommandTuple listResult = runCommand(listCommand, port);
 		CommandTuple fetchResult = runCommand(fetchCommand, port);
 		CommandTuple uploadCertResult = runCommand(uploadCertCommand, port);
 		CommandTuple uploadInvalidCertResult = runCommand(uploadInvalidCertCommand, port);
+		CommandTuple verifyResult = runCommand(verifyCommand, port);
+		CommandTuple badVerifyResult = runCommand(badVerifyCommand, port);
 
 		System.out.println("Upload result: " + uploadResult.getArgumentString());
 		System.out.println("Hash result: " + hashResult.getArgumentString());
@@ -97,5 +114,8 @@ public class Client {
 
 		System.out.println("Upload valid cert result: " + uploadCertResult.getArgumentString());
 		System.out.println("Upload invalid cert result: " + uploadInvalidCertResult.getArgumentString());
+
+		System.out.println("Bad verify result: " + badVerifyResult.getArgumentString());
+		System.out.println("Verify result: " + verifyResult.getArgumentString());
 	}
 }

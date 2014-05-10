@@ -58,7 +58,10 @@ public class CommandParser {
 	}
 
 	private Command createVerifyCommand(CommandTuple commandTuple) {
-		return new VerifyCommand(null, null);
+		Preconditions.checkArgument(commandTuple.args.length == 2);
+
+		String filename = commandTuple.args[1];
+		return new VerifyCommand(filename, commandTuple.data);
 	}
 
 	private Command createFetchCommand(CommandTuple commandTuple) {

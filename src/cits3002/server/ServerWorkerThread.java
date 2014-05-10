@@ -5,6 +5,7 @@ import cits3002.server.commands.CommandParser;
 import cits3002.server.commands.CommandTuple;
 import cits3002.server.commands.UnsupportedCommand;
 import cits3002.util.CommandUtil;
+import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 
 import javax.net.ssl.SSLSocket;
@@ -30,7 +31,7 @@ class ServerWorkerThread extends Thread {
 
 			Command clientCommand = readAndBuildCommand(in);
 			byte[] result = clientCommand.execute();
-			System.out.println("Result: " + new String(result, "ISO-8859-1"));
+			System.out.println("Result: " + new String(result, Charsets.ISO_8859_1));
 			out.write(result);
 			out.flush();
 			in.close();
