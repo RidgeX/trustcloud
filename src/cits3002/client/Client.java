@@ -1,121 +1,214 @@
 package cits3002.client;
 
-import cits3002.server.commands.CommandTuple;
-import cits3002.util.CommandUtil;
-import cits3002.util.SecurityUtil;
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.CharStreams;
+import cits3002.common.Command;
+import cits3002.common.CommandHandler;
+import cits3002.common.Message;
+import cits3002.common.MessageUtil;
+import cits3002.common.SecurityUtil;
 import com.google.common.io.Files;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
+import gnu.getopt.Getopt;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.security.PrivateKey;
+import java.security.Security;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.*;
-import java.net.InetAddress;
-import java.security.*;
-import java.security.spec.InvalidKeySpecException;
-
-import static com.google.common.base.Charsets.ISO_8859_1;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class Client {
-	private final MessageDigest digestInstance;
+	private static final String[] ANON_CIPHERS = new String[] {
+		"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
+		"TLS_DH_anon_WITH_AES_256_CBC_SHA",
+		"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
+		"TLS_DH_anon_WITH_AES_128_CBC_SHA"
+	};
+	private static final int DEFAULT_PORT = 4433;
 
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
-	public Client() throws NoSuchAlgorithmException {
-		digestInstance = MessageDigest.getInstance("SHA-1");
-	}
+	public static void main(String[] args) throws Exception {
+		InetAddress host = InetAddress.getLoopbackAddress();
+		int port = DEFAULT_PORT;
 
-	public static void main(String[] args)
-			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, InvalidKeyException,
-			NoSuchProviderException, SignatureException {
-		Client client = new Client();
-		client.run(4433);
-	}
+		Command cmd = null;
+		String fileName = null;
+		String certName = null;
+		int minRingLength = 3;
 
-	public CommandTuple runCommand(CommandTuple commandTuple, int port) {
-		try {
-			SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-			SSLSocket socket =
-					(SSLSocket) socketFactory.createSocket(InetAddress.getLoopbackAddress(), port);
-			socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+		Getopt g = new Getopt("Client", args, "a:c:f:h:lu:v:");
+		g.setOpterr(false);
+		int c;
+		String arg;
+		while ((c = g.getopt()) != -1) {
+			arg = g.getOptarg();
+			switch (c) {
+				case 'a':  // Add new file
+					if (cmd != null) usage();
+					cmd = Command.PUT;
+					fileName = arg;
+					break;
 
-			InputStreamReader inp = new InputStreamReader(socket.getInputStream(), ISO_8859_1);
-			OutputStream out = socket.getOutputStream();
+				case 'c':  // Ring circumference
+					minRingLength = Integer.parseInt(arg);
+					break;
 
-			out.write(CommandUtil.serialiseCommand(commandTuple));
-			out.flush();
+				case 'f':  // Fetch file
+					if (cmd != null) usage();
+					cmd = Command.GET;
+					fileName = arg;
+					break;
 
-			String resultString = CharStreams.toString(inp);
+				case 'h':  // Host and port
+					String[] addr = arg.split(":");
+					host = InetAddress.getByName(addr[0]);
+					port = Integer.parseInt(addr[1]);
+					break;
 
-			inp.close();
-			out.close();
-			socket.close();
+				case 'l':  // List files
+					cmd = Command.LIST;
+					break;
 
-			return CommandUtil.parseCommandData(resultString);
-		} catch (Exception e) {
-			e.printStackTrace();
+				case 'u':  // Upload new certificate
+					if (cmd != null) usage();
+					cmd = Command.PUT;
+					certName = arg;
+					break;
+
+				case 'v':  // Vouch for file
+					if (cmd != null) usage();
+					cmd = Command.VOUCH;
+					fileName = arg;
+					int optind = g.getOptind();
+					if (optind == args.length) usage();
+					certName = args[optind];
+					g.setOptind(optind + 1);
+					break;
+
+				default:
+					usage();
+			}
+		}
+		if (cmd == null) {
+			usage();
 		}
 
-		return null;
+		Client client = new Client();
+		client.run(host, port, cmd, fileName, certName, minRingLength);
 	}
 
-	public void run(int port)
-			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InvalidKeyException,
-			NoSuchProviderException, SignatureException {
-		CommandTuple uploadCommand = CommandUtil.makeCommandTuple(
-				"FLE test.txt",
-				Files.toByteArray(new File("../res/test.crt")));
+	private static void usage() {
+		System.err.println("Usage: java Client [options]");
+		System.err.println("\t-a filename");
+		System.err.println("\t\tadd or replace a file to the trustcloud");
+		System.err.println("\t-c length");
+		System.err.println("\t\tprovide the required length of a ring of trust");
+		System.err.println("\t-f filename");
+		System.err.println("\t\tfetch an existing file from the trustcloud server");
+		System.err.println("\t-h hostname:port");
+		System.err.println("\t\tprovide the remote address hosting the trustcloud server");
+		System.err.println("\t-l");
+		System.err.println("\t\tlist all stored files and how they are protected");
+		System.err.println("\t-u filename");
+		System.err.println("\t\tupload a certificate to the trustcloud server");
+		System.err.println("\t-v filename certname");
+		System.err.println("\t\tvouch for the authenticity of an existing file in the");
+		System.err.println("\t\ttrustcloud server using the indicated certificate");
+		System.exit(1);
+	}
 
+	public void run(InetAddress host, int port, Command cmd, String fileName, String certName, int minRingLength) throws Exception {
+		String args;
+		byte[] data;
+		Message response = null;
 
-		CommandTuple hashCommand = CommandUtil.makeCommandTuple("HSH test.txt");
-		CommandTuple listCommand = CommandUtil.makeCommandTuple("LST");
-		CommandTuple fetchCommand = CommandUtil.makeCommandTuple("FTC test.txt 0");
+		switch (cmd) {
+			case PUT:
+				File file;
+				int isCert;
+				if (certName != null) {
+					file = new File(certName);
+					isCert = 1;
+				} else {
+					file = new File(fileName);
+					isCert = 0;
+				}
+				args = String.format("%s|%s|%d", Command.PUT.name, file.getName(), isCert);
+				data = Files.toByteArray(file);
+				response = sendReceive(host, port, new Message(args, data));
+				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
+					System.out.println(response.getDataString());
+				} else {
+					System.err.println("Error: " + response.getDataString());
+				}
+				break;
 
-		CommandTuple uploadCertCommand = CommandUtil.makeCommandTuple(
-				"CRT test.crt",
-				Files.toByteArray(new File("../res/test.crt")));
+			case GET:
+				args = String.format("%s|%s|%d", Command.GET.name, fileName, minRingLength);
+				response = sendReceive(host, port, new Message(args));
+				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
+					DataOutputStream out = new DataOutputStream(System.out);
+					out.write(response.data);
+				} else {
+					System.err.println("Error: " + response.getDataString());
+				}
+				break;
 
-		CommandTuple uploadInvalidCertCommand = CommandUtil.makeCommandTuple(
-				"CRT test2.crt",
-				Files.toByteArray(new File("../res/hello.rsa")));
+			case LIST:
+				args = Command.LIST.name;
+				response = sendReceive(host, port, new Message(args));
+				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
+					System.out.print(response.getDataString());
+				} else {
+					System.err.println("Error: " + response.getDataString());
+				}
+				break;
 
-		String keyData = CharStreams.toString(
-				new BufferedReader(new InputStreamReader(new FileInputStream("../res/test.key"), ISO_8859_1)));
-		KeyPair keyPair = SecurityUtil.loadKeyPair(keyData, null);
-		byte[] fileData = Files.toByteArray(new File("../res/test.crt"));
-		byte[] sigData = SecurityUtil.signData(fileData, keyPair);
-		fileData[0]++;
-		byte[] badSigData = SecurityUtil.signData(fileData, keyPair);
-		String badSigString = SecurityUtil.packSignature(keyPair.getPublic(), badSigData);
-		String sigString = SecurityUtil.packSignature(keyPair.getPublic(), sigData);
-		CommandTuple badVerifyCommand = CommandUtil.makeCommandTuple("VFY test.txt", badSigString);
-		CommandTuple verifyCommand = CommandUtil.makeCommandTuple("VFY test.txt", sigString);
+			case VOUCH:
+				args = String.format("%s|%s", Command.HASH.name, fileName);
+				response = sendReceive(host, port, new Message(args));
+				if (!response.args[0].equals(CommandHandler.RESULT_OK)) {
+					System.err.println("Error: " + response.getDataString());
+					return;
+				}
 
-		CommandTuple uploadResult = runCommand(uploadCommand, port);
-		CommandTuple hashResult = runCommand(hashCommand, port);
-		CommandTuple listResult = runCommand(listCommand, port);
-		CommandTuple fetchResult = runCommand(fetchCommand, port);
-		CommandTuple uploadCertResult = runCommand(uploadCertCommand, port);
-		CommandTuple uploadInvalidCertResult = runCommand(uploadInvalidCertCommand, port);
-		CommandTuple verifyResult = runCommand(verifyCommand, port);
-		CommandTuple badVerifyResult = runCommand(badVerifyCommand, port);
+				File certFile = new File(certName);
+				File keyFile = new File(certName + ".key");
 
-		System.out.println("Upload result: " + uploadResult.getArgumentString());
-		System.out.println("Hash result: " + hashResult.getArgumentString());
-		System.out.println("Hash: " + BaseEncoding.base16().lowerCase().encode(hashResult.data));
-		System.out.println("List:");
-		System.out.println(listResult.getDataString());
-		System.out.println("Fetch result: " + fetchResult.getArgumentString());
-		System.out.println("Hash of fetch: " + BaseEncoding.base16().lowerCase()
-				.encode(digestInstance.digest(fetchResult.data)));
+				byte[] keyData = Files.toByteArray(keyFile);
+				PrivateKey privateKey = SecurityUtil.loadKeyPair(keyData).getPrivate();
+				byte[] hash = response.data;
+				byte[] sigData = SecurityUtil.makeSignature(privateKey, hash);
 
-		System.out.println("Upload valid cert result: " + uploadCertResult.getArgumentString());
-		System.out.println("Upload invalid cert result: " + uploadInvalidCertResult.getArgumentString());
+				args = String.format("%s|%s|%s", Command.VOUCH.name, fileName, certFile.getName());
+				response = sendReceive(host, port, new Message(args, sigData));
+				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
+					System.out.println(response.getDataString());
+				} else {
+					System.err.println("Error: " + response.getDataString());
+				}
+				break;
 
-		System.out.println("Bad verify result: " + badVerifyResult.getArgumentString());
-		System.out.println("Verify result: " + verifyResult.getArgumentString());
+			default:
+				break;
+		}
+	}
+
+	public Message sendReceive(InetAddress host, int port, Message request) throws IOException {
+		SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+		SSLSocket socket = (SSLSocket) socketFactory.createSocket(host, port);
+		socket.setEnabledCipherSuites(ANON_CIPHERS);
+		DataInputStream in = new DataInputStream(socket.getInputStream());
+		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+		MessageUtil.send(out, request);
+		Message response = MessageUtil.receive(in);
+
+		socket.close();
+		return response;
 	}
 }
