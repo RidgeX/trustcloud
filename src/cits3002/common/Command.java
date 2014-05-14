@@ -12,6 +12,7 @@ public enum Command {
 	VOUCH("VOUCH");
 
 	public static Map<String, Command> lookup;
+
 	static {
 		lookup = new HashMap<String, Command>();
 		for (Command cmd : values()) {

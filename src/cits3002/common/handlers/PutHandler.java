@@ -5,7 +5,6 @@ import cits3002.common.Message;
 import cits3002.common.SecurityUtil;
 import cits3002.server.NamespaceLayer;
 import cits3002.server.TrustLayer;
-
 import com.google.common.base.Preconditions;
 
 import java.security.cert.X509Certificate;

@@ -1,12 +1,12 @@
 package cits3002.client;
 
-import cits3002.common.Command;
-import cits3002.common.CommandHandler;
-import cits3002.common.Message;
-import cits3002.common.MessageUtil;
-import cits3002.common.SecurityUtil;
+import cits3002.common.*;
 import com.google.common.io.Files;
 import gnu.getopt.Getopt;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -14,16 +14,13 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.security.PrivateKey;
 import java.security.Security;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class Client {
 	private static final String[] ANON_CIPHERS = new String[] {
-		"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
-		"TLS_DH_anon_WITH_AES_256_CBC_SHA",
-		"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
-		"TLS_DH_anon_WITH_AES_128_CBC_SHA"
+			"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
+			"TLS_DH_anon_WITH_AES_256_CBC_SHA",
+			"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
+			"TLS_DH_anon_WITH_AES_128_CBC_SHA"
 	};
 	private static final int DEFAULT_PORT = 4433;
 
@@ -48,7 +45,9 @@ public class Client {
 			arg = g.getOptarg();
 			switch (c) {
 				case 'a':  // Add new file
-					if (cmd != null) usage();
+					if (cmd != null) {
+						usage();
+					}
 					cmd = Command.PUT;
 					fileName = arg;
 					break;
@@ -58,7 +57,9 @@ public class Client {
 					break;
 
 				case 'f':  // Fetch file
-					if (cmd != null) usage();
+					if (cmd != null) {
+						usage();
+					}
 					cmd = Command.GET;
 					fileName = arg;
 					break;
@@ -74,17 +75,23 @@ public class Client {
 					break;
 
 				case 'u':  // Upload new certificate
-					if (cmd != null) usage();
+					if (cmd != null) {
+						usage();
+					}
 					cmd = Command.PUT;
 					certName = arg;
 					break;
 
 				case 'v':  // Vouch for file
-					if (cmd != null) usage();
+					if (cmd != null) {
+						usage();
+					}
 					cmd = Command.VOUCH;
 					fileName = arg;
 					int optind = g.getOptind();
-					if (optind == args.length) usage();
+					if (optind == args.length) {
+						usage();
+					}
 					certName = args[optind];
 					g.setOptind(optind + 1);
 					break;
@@ -121,7 +128,8 @@ public class Client {
 		System.exit(1);
 	}
 
-	public void run(InetAddress host, int port, Command cmd, String fileName, String certName, int minRingLength) throws Exception {
+	public void run(InetAddress host, int port, Command cmd, String fileName, String certName,
+			int minRingLength) throws Exception {
 		String args;
 		byte[] data;
 		Message response = null;

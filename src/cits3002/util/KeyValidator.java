@@ -2,15 +2,16 @@ package cits3002.util;
 
 import cits3002.common.SecurityUtil;
 import com.google.common.io.Files;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPrivateCrtKey;
+import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import java.io.File;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Scanner;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPrivateCrtKey;
-import org.bouncycastle.jcajce.provider.asymmetric.rsa.BCRSAPublicKey;
 
 public class KeyValidator {
 	static {
@@ -42,7 +43,8 @@ public class KeyValidator {
 			BigInteger modulus = publicKey.getModulus();
 			BigInteger publicExponent = publicKey.getPublicExponent();
 			BCRSAPrivateCrtKey privateKey = (BCRSAPrivateCrtKey) keyPair.getPrivate();
-			if (!privateKey.getModulus().equals(modulus) || !privateKey.getPublicExponent().equals(publicExponent)) {
+			if (!privateKey.getModulus().equals(modulus) || !privateKey.getPublicExponent()
+					.equals(publicExponent)) {
 				throw new SecurityException("Invalid key pair");
 			}
 			System.out.println(publicKey);

@@ -1,6 +1,7 @@
 package cits3002.server;
 
 import cits3002.common.SecurityUtil;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -14,7 +15,9 @@ public class TrustLayer {
 	private static final File SIGS_DIR = new File("ns/sigs");
 
 	static {
-		if (!SIGS_DIR.exists()) SIGS_DIR.mkdirs();
+		if (!SIGS_DIR.exists()) {
+			SIGS_DIR.mkdirs();
+		}
 	}
 
 	public static Map<String, Properties> fileToSigs;
@@ -29,7 +32,8 @@ public class TrustLayer {
 		}
 	}
 
-	public static boolean addSignature(String fileName, String certName, byte[] sigData) throws IOException {
+	public static boolean addSignature(String fileName, String certName, byte[] sigData)
+			throws IOException {
 		Properties sigs = fileToSigs.get(fileName);
 		if (sigs == null) {
 			sigs = new Properties();

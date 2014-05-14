@@ -1,7 +1,6 @@
 package cits3002.common;
 
 import cits3002.common.handlers.*;
-
 import com.google.common.base.Preconditions;
 
 public abstract class CommandHandler {

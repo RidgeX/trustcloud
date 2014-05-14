@@ -6,6 +6,7 @@ import cits3002.common.SecurityUtil;
 import cits3002.server.NamespaceLayer;
 import cits3002.server.TrustLayer;
 import com.google.common.base.Preconditions;
+
 import java.security.cert.X509Certificate;
 
 public class VouchHandler extends CommandHandler {
@@ -34,7 +35,8 @@ public class VouchHandler extends CommandHandler {
 			if (!TrustLayer.addSignature(fileName, certName, data)) {
 				return new Message(RESULT_FAIL, "File already signed.");
 			}
-			return new Message(RESULT_OK, String.format("File '%s' was signed using '%s'.", fileName, certName));
+			return new Message(RESULT_OK,
+					String.format("File '%s' was signed using '%s'.", fileName, certName));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new Message(RESULT_FAIL, "Couldn't sign file.");

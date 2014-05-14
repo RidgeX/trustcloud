@@ -2,6 +2,7 @@ package cits3002.common;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.ByteProcessor;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -17,6 +18,7 @@ public class MessageReader implements ByteProcessor<Message> {
 
 	private int toRead;
 	private State state;
+
 
 	private enum State {
 		READING_DATA_LENGTH,
@@ -42,7 +44,8 @@ public class MessageReader implements ByteProcessor<Message> {
 				case READING_DATA_LENGTH:
 					b = buffer.get();
 					if (b == '\n') {
-						dataLength = Integer.parseInt(new String(dataLengthBytes.toByteArray(), Charsets.ISO_8859_1));
+						dataLength =
+								Integer.parseInt(new String(dataLengthBytes.toByteArray(), Charsets.ISO_8859_1));
 						if (dataLength > MAX_DATA_LENGTH) {
 							throw new IllegalArgumentException("Maximum data length exceeded");
 						}

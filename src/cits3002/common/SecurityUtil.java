@@ -3,16 +3,6 @@ package cits3002.common;
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
-import java.io.StringReader;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.MessageDigest;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.cert.X509Certificate;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
@@ -20,13 +10,20 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 
+import java.io.StringReader;
+import java.security.*;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
 public class SecurityUtil {
 	public static X509Certificate loadCertificate(byte[] certData) throws Exception {
 		StringReader in = new StringReader(new String(certData, Charsets.ISO_8859_1));
 		PEMParser parser = new PEMParser(in);
 		X509CertificateHolder certObj = (X509CertificateHolder) parser.readObject();
 		parser.close();
-		X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certObj);
+		X509Certificate cert =
+				new JcaX509CertificateConverter().setProvider("BC").getCertificate(certObj);
 		return cert;
 	}
 
@@ -53,7 +50,8 @@ public class SecurityUtil {
 
 		if (pairObj instanceof PEMEncryptedKeyPair) {
 			Preconditions.checkNotNull(password);
-			pairObj = ((PEMEncryptedKeyPair) pairObj).decryptKeyPair(new JcePEMDecryptorProviderBuilder().build(password.toCharArray()));
+			pairObj = ((PEMEncryptedKeyPair) pairObj)
+					.decryptKeyPair(new JcePEMDecryptorProviderBuilder().build(password.toCharArray()));
 		}
 
 		PEMKeyPair pair = (PEMKeyPair) pairObj;

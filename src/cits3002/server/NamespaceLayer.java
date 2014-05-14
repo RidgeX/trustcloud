@@ -1,6 +1,7 @@
 package cits3002.server;
 
 import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,8 +21,12 @@ public class NamespaceLayer {
 	private static final File FILES_DIR = new File("ns/files");
 
 	static {
-		if (!CERTS_DIR.exists()) CERTS_DIR.mkdirs();
-		if (!FILES_DIR.exists()) FILES_DIR.mkdirs();
+		if (!CERTS_DIR.exists()) {
+			CERTS_DIR.mkdirs();
+		}
+		if (!FILES_DIR.exists()) {
+			FILES_DIR.mkdirs();
+		}
 	}
 
 	public static byte[] readFile(String fileName) throws IOException {

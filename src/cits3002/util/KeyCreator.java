@@ -1,16 +1,5 @@
 package cits3002.util;
 
-import java.io.FileWriter;
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.Scanner;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -19,6 +8,13 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+
+import java.io.FileWriter;
+import java.math.BigInteger;
+import java.security.*;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Scanner;
 
 public class KeyCreator {
 	private static final long MILLISECS_PER_DAY = 24 * 60 * 60 * 1000L;
@@ -43,12 +39,17 @@ public class KeyCreator {
 		PublicKey publicKey = keyPair.getPublic();
 		PrivateKey privateKey = keyPair.getPrivate();
 
-		X500Name dnName = new X500Name(String.format("CN=%s, O=Trustcloud, L=Australia, C=AU", username));
+		X500Name dnName =
+				new X500Name(String.format("CN=%s, O=Trustcloud, L=Australia, C=AU", username));
 		BigInteger sn = BigInteger.valueOf(System.currentTimeMillis());
 		SubjectPublicKeyInfo keyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-		X509v3CertificateBuilder certGen = new X509v3CertificateBuilder(dnName, sn, validityBeginDate, validityEndDate, dnName, keyInfo);
-		ContentSigner sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privateKey);
-		X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
+		X509v3CertificateBuilder certGen =
+				new X509v3CertificateBuilder(dnName, sn, validityBeginDate, validityEndDate, dnName,
+						keyInfo);
+		ContentSigner sigGen =
+				new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privateKey);
+		X509Certificate cert =
+				new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
 		cert.checkValidity();
 		cert.verify(publicKey);
 
@@ -57,7 +58,8 @@ public class KeyCreator {
 		certWriter.close();
 
 		PEMWriter keyWriter = new PEMWriter(new FileWriter(username + ".crt.key"));
-		keyWriter.writeObject(privateKey);;
+		keyWriter.writeObject(privateKey);
+		;
 		keyWriter.close();
 	}
 }

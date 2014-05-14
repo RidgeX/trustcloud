@@ -4,10 +4,11 @@ import cits3002.common.CommandHandler;
 import cits3002.common.Message;
 import cits3002.common.MessageUtil;
 import com.google.common.base.Preconditions;
+
+import javax.net.ssl.SSLSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import javax.net.ssl.SSLSocket;
 
 public class WorkerThread extends Thread {
 	private SSLSocket socket;
@@ -36,7 +37,8 @@ public class WorkerThread extends Thread {
 		} finally {
 			try {
 				socket.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		}
 		System.err.println("Connection closed");
 	}

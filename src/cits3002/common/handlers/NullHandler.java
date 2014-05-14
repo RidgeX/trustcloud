@@ -4,7 +4,8 @@ import cits3002.common.CommandHandler;
 import cits3002.common.Message;
 
 public class NullHandler extends CommandHandler {
-	public NullHandler() {}
+	public NullHandler() {
+	}
 
 	@Override
 	public Message execute() {
