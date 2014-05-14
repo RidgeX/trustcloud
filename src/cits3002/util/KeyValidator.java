@@ -25,15 +25,13 @@ public class KeyValidator {
 		input.close();
 
 		File certFile = new File(username + ".crt");
-		X509Certificate cert = SecurityUtil.loadCertificate(Files.toByteArray(certFile));
+		X509Certificate certificate = SecurityUtil.loadCertificate(Files.toByteArray(certFile));
 		File keyFile = new File(username + ".crt.key");
 		KeyPair keyPair = SecurityUtil.loadKeyPair(Files.toByteArray(keyFile));
 
 		try {
-			if (!SecurityUtil.checkCertificate(cert)) {
-				throw new SecurityException("Invalid certificate");
-			}
-			System.out.println(cert);
+			SecurityUtil.checkCertificate(certificate);
+			System.out.println(certificate);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

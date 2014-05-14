@@ -1,22 +1,27 @@
 package cits3002.client;
 
-import cits3002.common.*;
+import cits3002.common.SecurityUtil;
+import cits3002.common.messages.Message;
+import cits3002.common.messages.MessageType;
+import cits3002.common.messages.MessageUtil;
+import com.google.common.base.Objects;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
+import com.google.common.primitives.UnsignedInts;
 import gnu.getopt.Getopt;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.security.PrivateKey;
+import java.security.KeyPair;
 import java.security.Security;
 
 public class Client {
-	private static final String[] ANON_CIPHERS = new String[] {
+	private static final String[] ANONYMOUS_CIPHERS = new String[] {
 			"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
 			"TLS_DH_anon_WITH_AES_256_CBC_SHA",
 			"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
@@ -32,10 +37,10 @@ public class Client {
 		InetAddress host = InetAddress.getLoopbackAddress();
 		int port = DEFAULT_PORT;
 
-		Command cmd = null;
-		String fileName = null;
-		String certName = null;
-		int minRingLength = 3;
+		MessageType messageType = null;
+		String filename = null;
+		String certificateName = null;
+		int minimumRingLength = 3;
 
 		Getopt g = new Getopt("Client", args, "a:c:f:h:lu:v:");
 		g.setOpterr(false);
@@ -45,54 +50,56 @@ public class Client {
 			arg = g.getOptarg();
 			switch (c) {
 				case 'a':  // Add new file
-					if (cmd != null) {
+					if (messageType != null) {
 						usage();
 					}
-					cmd = Command.PUT;
-					fileName = arg;
+					messageType = MessageType.PUT;
+					filename = arg;
 					break;
 
 				case 'c':  // Ring circumference
-					minRingLength = Integer.parseInt(arg);
+					minimumRingLength = Integer.parseInt(arg);
 					break;
 
 				case 'f':  // Fetch file
-					if (cmd != null) {
+					if (messageType != null) {
 						usage();
 					}
-					cmd = Command.GET;
-					fileName = arg;
+					messageType = MessageType.GET;
+					filename = arg;
 					break;
 
 				case 'h':  // Host and port
-					String[] addr = arg.split(":");
+					String[] addr = Iterables.toArray(
+							Splitter.on(':').omitEmptyStrings().trimResults().split(arg),
+							String.class);
 					host = InetAddress.getByName(addr[0]);
-					port = Integer.parseInt(addr[1]);
+					port = UnsignedInts.parseUnsignedInt(addr[1]);
 					break;
 
 				case 'l':  // List files
-					cmd = Command.LIST;
+					messageType = MessageType.LIST;
 					break;
 
 				case 'u':  // Upload new certificate
-					if (cmd != null) {
+					if (messageType != null) {
 						usage();
 					}
-					cmd = Command.PUT;
-					certName = arg;
+					messageType = MessageType.PUT;
+					certificateName = arg;
 					break;
 
 				case 'v':  // Vouch for file
-					if (cmd != null) {
+					if (messageType != null) {
 						usage();
 					}
-					cmd = Command.VOUCH;
-					fileName = arg;
+					messageType = MessageType.VOUCH;
+					filename = arg;
 					int optind = g.getOptind();
 					if (optind == args.length) {
 						usage();
 					}
-					certName = args[optind];
+					certificateName = args[optind];
 					g.setOptind(optind + 1);
 					break;
 
@@ -100,12 +107,12 @@ public class Client {
 					usage();
 			}
 		}
-		if (cmd == null) {
+		if (messageType == null) {
 			usage();
 		}
 
 		Client client = new Client();
-		client.run(host, port, cmd, fileName, certName, minRingLength);
+		client.run(host, port, messageType, filename, certificateName, minimumRingLength);
 	}
 
 	private static void usage() {
@@ -128,93 +135,67 @@ public class Client {
 		System.exit(1);
 	}
 
-	public void run(InetAddress host, int port, Command cmd, String fileName, String certName,
-			int minRingLength) throws Exception {
-		String args;
-		byte[] data;
-		Message response = null;
+	public void run(InetAddress host, int port, MessageType messageType, String filename,
+			String certificateName, int minimumRingLength) throws Exception {
+		Message request = null;
+		String[] args = null;
 
-		switch (cmd) {
+		switch (messageType) {
 			case PUT:
-				File file;
-				int isCert;
-				if (certName != null) {
-					file = new File(certName);
-					isCert = 1;
-				} else {
-					file = new File(fileName);
-					isCert = 0;
+				File file = new File(filename);;
+				String isCertificate = "F";
+				if (certificateName != null) {
+					file = new File(certificateName);
+					isCertificate = "C";
 				}
-				args = String.format("%s|%s|%d", Command.PUT.name, file.getName(), isCert);
-				data = Files.toByteArray(file);
-				response = sendReceive(host, port, new Message(args, data));
-				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
-					System.out.println(response.getDataString());
-				} else {
-					System.err.println("Error: " + response.getDataString());
-				}
-				break;
+				args = new String[] {file.getName(), isCertificate};
+				request = MessageUtil.createMessage(messageType, args, Files.toByteArray(file));
 
+				break;
 			case GET:
-				args = String.format("%s|%s|%d", Command.GET.name, fileName, minRingLength);
-				response = sendReceive(host, port, new Message(args));
-				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
-					DataOutputStream out = new DataOutputStream(System.out);
-					out.write(response.data);
-				} else {
-					System.err.println("Error: " + response.getDataString());
-				}
+				args = new String[] {filename, Integer.toString(minimumRingLength)};
+				request = MessageUtil.createMessage(messageType, args);
 				break;
 
 			case LIST:
-				args = Command.LIST.name;
-				response = sendReceive(host, port, new Message(args));
-				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
-					System.out.print(response.getDataString());
-				} else {
-					System.err.println("Error: " + response.getDataString());
-				}
+				request = MessageUtil.createMessage(messageType);
 				break;
 
 			case VOUCH:
-				args = String.format("%s|%s", Command.HASH.name, fileName);
-				response = sendReceive(host, port, new Message(args));
-				if (!response.args[0].equals(CommandHandler.RESULT_OK)) {
-					System.err.println("Error: " + response.getDataString());
+				Message hashRequest = MessageUtil.createMessage(MessageType.HASH, filename);
+				Message hashResponse = doRequest(host, port, hashRequest);
+				if (!Objects.equal(hashResponse.type, MessageType.OK)) {
+					System.err.println("Error: " + hashResponse.getDataString());
 					return;
 				}
 
-				File certFile = new File(certName);
-				File keyFile = new File(certName + ".key");
+				File keyFile = new File(certificateName + ".key");
 
-				byte[] keyData = Files.toByteArray(keyFile);
-				PrivateKey privateKey = SecurityUtil.loadKeyPair(keyData).getPrivate();
-				byte[] hash = response.data;
-				byte[] sigData = SecurityUtil.makeSignature(privateKey, hash);
+				KeyPair keyPair = SecurityUtil.loadKeyPair(Files.toByteArray(keyFile));
+				byte[] sigData = SecurityUtil.signData(hashResponse.data, keyPair.getPrivate());
 
-				args = String.format("%s|%s|%s", Command.VOUCH.name, fileName, certFile.getName());
-				response = sendReceive(host, port, new Message(args, sigData));
-				if (response.args[0].equals(CommandHandler.RESULT_OK)) {
-					System.out.println(response.getDataString());
-				} else {
-					System.err.println("Error: " + response.getDataString());
-				}
+				request = MessageUtil.createMessage(
+						messageType,
+						filename,
+						SecurityUtil.packSignature(
+								new SecurityUtil.UnpackedSignature(keyPair.getPublic(), sigData)));
 				break;
-
-			default:
-				break;
+		}
+		Message response = doRequest(host, port, request);
+		if (Objects.equal(response.type, MessageType.OK)) {
+			System.out.println(response.getDataString());
+		} else {
+			System.err.println("Error: " + response.getDataString());
 		}
 	}
 
-	public Message sendReceive(InetAddress host, int port, Message request) throws IOException {
+	public Message doRequest(InetAddress host, int port, Message request) throws IOException {
 		SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		SSLSocket socket = (SSLSocket) socketFactory.createSocket(host, port);
-		socket.setEnabledCipherSuites(ANON_CIPHERS);
-		DataInputStream in = new DataInputStream(socket.getInputStream());
-		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+		socket.setEnabledCipherSuites(ANONYMOUS_CIPHERS);
 
-		MessageUtil.send(out, request);
-		Message response = MessageUtil.receive(in);
+		socket.getOutputStream().write(MessageUtil.serialiseMessage(request));
+		Message response = MessageUtil.parseMessage(socket.getInputStream());
 
 		socket.close();
 		return response;

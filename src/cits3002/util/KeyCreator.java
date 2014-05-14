@@ -48,13 +48,13 @@ public class KeyCreator {
 						keyInfo);
 		ContentSigner sigGen =
 				new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privateKey);
-		X509Certificate cert =
+		X509Certificate certificate =
 				new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
-		cert.checkValidity();
-		cert.verify(publicKey);
+		certificate.checkValidity();
+		certificate.verify(publicKey);
 
 		PEMWriter certWriter = new PEMWriter(new FileWriter(username + ".crt"));
-		certWriter.writeObject(cert);
+		certWriter.writeObject(certificate);
 		certWriter.close();
 
 		PEMWriter keyWriter = new PEMWriter(new FileWriter(username + ".crt.key"));

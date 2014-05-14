@@ -1,83 +1,72 @@
 package cits3002.common;
 
+import cits3002.server.NamespaceLayer;
 import cits3002.server.TrustLayer;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Sets;
 
-import java.util.HashSet;
-import java.util.Properties;
+import java.util.Collection;
 import java.util.Set;
-import java.util.Stack;
 
 public class RingVerifier {
-	private ListMultimap<String, String> edges;
-	private ListMultimap<String, String> revEdges;
+	private Multimap<String, String> edges;
+	private Set<String> ringBases;
 	private Set<String> visited;
-	private Stack<String> finished;
-	private int sccSize;
-	private int maxSccSize;
 
-	public RingVerifier(String u) {
-		edges = ArrayListMultimap.create();
-		revEdges = ArrayListMultimap.create();
-		visited = new HashSet<String>();
-		finished = new Stack<String>();
-		sccSize = 0;
-		maxSccSize = 0;
+	public RingVerifier(String filename) {
+		this.edges = MultimapBuilder.hashKeys().hashSetValues().build();
+		this.ringBases = Sets.newHashSet();
+		this.visited = Sets.newHashSet();
 
-		addEdges(u);
+		ringBases.addAll(getConnectedCertificates(filename));
+		for (String certificateFilename : ringBases) {
+			buildEdges(certificateFilename);
+		}
+	}
 
-		visited.clear();
-		dfs(u);
-
-		visited.clear();
-		while (!finished.isEmpty()) {
-			String v = finished.pop();
-			if (!visited.contains(v)) {
-				sccSize = 0;
-				dfs2(v);
-				if (sccSize > maxSccSize) {
-					maxSccSize = sccSize;
-				}
+	public boolean hasRingOfSufficientLength(int minimumRingLength) {
+		for (String certificateFilename : ringBases) {
+			visited.clear();
+			if (dfs(certificateFilename) >= minimumRingLength) {
+				return true;
 			}
 		}
 
-		System.err.println("<< Largest ring is of size " + maxSccSize);
+		return false;
 	}
 
-	public boolean testLength(int length) {
-		return (length <= maxSccSize);
+	private Set<String> getConnectedCertificates(String filename) {
+		Collection<SecurityUtil.UnpackedSignature> signatures =
+				TrustLayer.getSignaturesForFile(filename);
+		Set<String> connectedCertificates = Sets.newHashSet();
+		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
+			connectedCertificates.addAll(
+					NamespaceLayer.getCertificateFilenamesForPublicKey(unpacked.publicKey));
+		}
+		return connectedCertificates;
 	}
 
-	private void addEdges(String u) {
-		visited.add(u);
-		Properties sigs = TrustLayer.fileToSigs.get(u);
-		for (String v : sigs.stringPropertyNames()) {
-			edges.put(u, v);
-			revEdges.put(v, u);
-			if (!visited.contains(v)) {
-				addEdges(v);
+	private void buildEdges(String certificateFilename) {
+		Set<String> connectedCertificates = getConnectedCertificates(certificateFilename);
+		for (String certificate : connectedCertificates) {
+			edges.put(certificate, certificateFilename);
+			if (!visited.contains(certificate)) {
+				buildEdges(certificate);
+				visited.add(certificateFilename);
 			}
 		}
 	}
 
-	private void dfs(String u) {
-		visited.add(u);
-		for (String v : edges.get(u)) {
-			if (!visited.contains(v)) {
-				dfs(v);
+	private int dfs(String node) {
+		int max = 0;
+		for (String adj : edges.get(node)) {
+			if (!visited.contains(adj)) {
+				visited.add(adj);
+				max = Math.max(max, dfs(adj) + 1);
+				visited.remove(adj);
 			}
 		}
-		finished.push(u);
-	}
-
-	private void dfs2(String v) {
-		visited.add(v);
-		sccSize++;
-		for (String u : revEdges.get(v)) {
-			if (!visited.contains(u)) {
-				dfs2(u);
-			}
-		}
+		return max;
 	}
 }
