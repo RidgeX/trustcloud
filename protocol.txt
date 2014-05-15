@@ -7,7 +7,7 @@ list of arguments on the third line. Then there is the binary data.
 Example command:
 8\n
 PUT\n
-test.txt|0\n
+test.txt|F\n
 testdata
 
 Add/replace file command:
@@ -40,6 +40,7 @@ GET\n
 Fetch response:
 <file length>\n
 OK\n
+\n
 <file>
 
 List files command:
