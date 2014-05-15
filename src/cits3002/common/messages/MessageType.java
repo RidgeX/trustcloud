@@ -1,5 +1,8 @@
 package cits3002.common.messages;
 
+/**
+ * The possible message types.
+ */
 public enum MessageType {
 	GET("GET"),
 	HASH("HASH"),
@@ -12,6 +15,10 @@ public enum MessageType {
 
 	public String name;
 
+	/**
+	 * Construct a new message type.
+	 * @param name The type name
+	 */
 	private MessageType(String name) {
 		this.name = name;
 	}

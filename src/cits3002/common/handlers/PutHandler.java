@@ -10,11 +10,20 @@ import com.google.common.base.Preconditions;
 
 import java.security.cert.X509Certificate;
 
+/**
+ * Handler for uploading a file or certificate.
+ */
 public class PutHandler implements Handler {
 	private final String filename;
 	private final boolean isCertificate;
 	private final byte[] data;
 
+	/**
+	 * Construct a new PUT handler.
+	 * @param filename The name of the file to upload
+	 * @param isCertificate Whether the file is a certificate
+	 * @param data The file data
+	 */
 	public PutHandler(String filename, boolean isCertificate, byte[] data) {
 		Preconditions.checkNotNull(filename);
 		Preconditions.checkNotNull(data);
@@ -24,6 +33,10 @@ public class PutHandler implements Handler {
 		this.data = data;
 	}
 
+	/**
+	 * Handle the request.
+	 * @return The response message
+	 */
 	@Override
 	public Message execute() {
 		try {

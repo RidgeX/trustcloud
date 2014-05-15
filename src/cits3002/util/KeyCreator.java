@@ -16,13 +16,22 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Scanner;
 
+/**
+ * A utility program for creating certificate and key pairs.
+ */
 public class KeyCreator {
+	/**
+	 * The number of milliseconds in a day.
+	 */
 	private static final long MILLISECS_PER_DAY = 24 * 60 * 60 * 1000L;
 
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
+	/**
+	 * Main method.
+	 */
 	public static void main(String[] args) throws Exception {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter username: ");
@@ -59,7 +68,6 @@ public class KeyCreator {
 
 		PEMWriter keyWriter = new PEMWriter(new FileWriter(username + ".crt.key"));
 		keyWriter.writeObject(privateKey);
-		;
 		keyWriter.close();
 	}
 }

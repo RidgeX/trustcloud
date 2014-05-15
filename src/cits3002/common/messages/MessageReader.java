@@ -7,7 +7,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+/**
+ * A utility class for reading messages.
+ */
 public class MessageReader implements ByteProcessor<Message> {
+	/**
+	 * The maximum allowed size for the message payload.
+	 */
 	private static final int MAX_BINARY_DATA = 100 * 1024 * 1024; // 100 MB
 
 	private ByteArrayOutputStream dataLengthBytes;
@@ -19,7 +25,9 @@ public class MessageReader implements ByteProcessor<Message> {
 	private String argsString;
 	private State state;
 
-
+	/**
+	 * The possible reading states.
+	 */
 	private enum State {
 		READING_DATA_LENGTH,
 		READING_TYPE,
@@ -28,6 +36,9 @@ public class MessageReader implements ByteProcessor<Message> {
 		DONE
 	}
 
+	/**
+	 * Construct a new message reader.
+	 */
 	public MessageReader() {
 		this.dataLengthBytes = new ByteArrayOutputStream();
 		this.typeStringBytes = new ByteArrayOutputStream();
@@ -37,6 +48,13 @@ public class MessageReader implements ByteProcessor<Message> {
 		this.state = State.READING_DATA_LENGTH;
 	}
 
+	/**
+	 * Process the given bytes.
+	 * @param bytes The bytes to be processed
+	 * @param off The offset
+	 * @param len The length
+	 * @return true if there is more data to process
+	 */
 	@Override public boolean processBytes(byte[] bytes, int off, int len) throws IOException {
 		int idx = 0;
 		while (idx < len) {
@@ -45,6 +63,10 @@ public class MessageReader implements ByteProcessor<Message> {
 		return state != State.DONE;
 	}
 
+	/**
+	 * Return the resulting message.
+	 * @return The message
+	 */
 	@Override public Message getResult() {
 		if (state != State.DONE) {
 			return null;
@@ -53,6 +75,14 @@ public class MessageReader implements ByteProcessor<Message> {
 		}
 	}
 
+	/**
+	 * Try reading a line from the given bytes.
+	 * @param bytes The bytes being processed
+	 * @param off The offset
+	 * @param len The length
+	 * @param out The in-memory line buffer
+	 * @return true if a newline character was reached
+	 */
 	private boolean readLine(byte[] bytes, int off, int len, ByteArrayOutputStream out) {
 		int lastIdx = 0;
 		while (lastIdx < len && bytes[off + lastIdx] != '\n') {
@@ -63,6 +93,13 @@ public class MessageReader implements ByteProcessor<Message> {
 		return lastIdx < len && bytes[off + lastIdx] == '\n';
 	}
 
+	/**
+	 * Process the given bytes and return the number of bytes read.
+	 * @param bytes The bytes to be processed.
+	 * @param off The offset
+	 * @param len The length
+	 * @return The number of bytes read
+	 */
 	private int processBytesInternal(byte[] bytes, int off, int len)
 			throws UnsupportedEncodingException {
 		switch (state) {
@@ -78,6 +115,7 @@ public class MessageReader implements ByteProcessor<Message> {
 					return dataLengthBytes.size() + 1;
 				}
 				break;
+
 			case READING_TYPE:
 				if (readLine(bytes, off, len, typeStringBytes)) {
 					typeString = typeStringBytes.toString("ISO-8859-1");
@@ -86,6 +124,7 @@ public class MessageReader implements ByteProcessor<Message> {
 					return typeStringBytes.size() + 1;
 				}
 				break;
+
 			case READING_ARGUMENTS:
 				if (readLine(bytes, off, len, argsStringBytes)) {
 					argsString = argsStringBytes.toString("ISO-8859-1");
@@ -98,6 +137,7 @@ public class MessageReader implements ByteProcessor<Message> {
 					return argsStringBytes.size() + 1;
 				}
 				break;
+
 			case READING_DATA:
 				int toRead = Math.min(dataLength, len);
 				dataBytes.write(bytes, off, toRead);

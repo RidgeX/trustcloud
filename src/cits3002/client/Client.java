@@ -21,19 +21,34 @@ import java.net.InetAddress;
 import java.security.KeyPair;
 import java.security.Security;
 
+/**
+ * The Trustcloud client application.
+ * @author Eliot Courtney (21141563), Ridge Shrubsall (21112211)
+ */
 public class Client {
+	/**
+	 * A list of allowed cipher suites for establishing a connection.
+	 */
 	private static final String[] ANONYMOUS_CIPHERS = new String[] {
 			"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
 			"TLS_DH_anon_WITH_AES_256_CBC_SHA",
 			"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
 			"TLS_DH_anon_WITH_AES_128_CBC_SHA"
 	};
+
+	/**
+	 * The default port for connecting to the server.
+	 */
 	private static final int DEFAULT_PORT = 4433;
 
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
+	/**
+	 * Main method for the client.
+	 * @param args The command-line options to be used
+	 */
 	public static void main(String[] args) throws Exception {
 		InetAddress host = InetAddress.getLoopbackAddress();
 		int port = DEFAULT_PORT;
@@ -43,6 +58,7 @@ public class Client {
 		String certificateName = null;
 		int minimumRingLength = 0;
 
+		// Parse options
 		Getopt g = new Getopt("Client", args, "a:c:f:h:lu:v:");
 		g.setOpterr(false);
 		int c;
@@ -112,10 +128,14 @@ public class Client {
 			usage();
 		}
 
+		// Start client
 		Client client = new Client();
 		client.run(host, port, messageType, filename, certificateName, minimumRingLength);
 	}
 
+	/**
+	 * Print usage and exit.
+	 */
 	private static void usage() {
 		System.err.println("Usage: java Client [options]");
 		System.err.println("\t-a filename");
@@ -136,11 +156,21 @@ public class Client {
 		System.exit(1);
 	}
 
+	/**
+	 * Starts the client process.
+	 * @param host The server's address
+	 * @param port The server's port
+	 * @param messageType The message type
+	 * @param filename The name of the file to upload/fetch/vouch
+	 * @param certificateName The name of the certificate to upload/sign with
+	 * @param minimumRingLength The minimum trust requirement
+	 */
 	public void run(InetAddress host, int port, MessageType messageType, String filename,
 			String certificateName, int minimumRingLength) throws Exception {
 		Message request = null;
 		String[] args;
 
+		// Construct request message
 		switch (messageType) {
 			case PUT:
 				File file;
@@ -154,8 +184,8 @@ public class Client {
 				}
 				args = new String[] {file.getName(), isCertificate};
 				request = MessageUtil.createMessage(messageType, args, Files.toByteArray(file));
-
 				break;
+
 			case GET:
 				args = new String[] {filename, Integer.toString(minimumRingLength)};
 				request = MessageUtil.createMessage(messageType, args);
@@ -180,6 +210,8 @@ public class Client {
 				);
 				break;
 		}
+
+		// Send request and print response data
 		if (request != null) {
 			Message response = doRequest(host, port, request);
 			if (response != null) {
@@ -201,6 +233,13 @@ public class Client {
 		}
 	}
 
+	/**
+	 * Sends a request to the server and returns the response.
+	 * @param host The server's address
+	 * @param port The server's port
+	 * @param request The request message
+	 * @return The response message
+	 */
 	public Message doRequest(InetAddress host, int port, Message request) throws IOException {
 		SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 		SSLSocket socket = (SSLSocket) socketFactory.createSocket(host, port);
