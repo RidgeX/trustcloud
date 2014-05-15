@@ -7,15 +7,26 @@ import cits3002.common.messages.MessageUtil;
 import cits3002.server.NamespaceLayer;
 import com.google.common.base.Preconditions;
 
+/**
+ * Handler for hashing a file.
+ */
 public class HashHandler implements Handler {
 	private final String filename;
 
+	/**
+	 * Constuct a new HASH handler.
+	 * @param filename The name of the file to hash
+	 */
 	public HashHandler(String filename) {
 		Preconditions.checkNotNull(filename);
 		Preconditions.checkArgument(NamespaceLayer.isValidFilename(filename));
 		this.filename = filename;
 	}
 
+	/**
+	 * Handle the request.
+	 * @return The response message
+	 */
 	@Override
 	public Message execute() {
 		try {

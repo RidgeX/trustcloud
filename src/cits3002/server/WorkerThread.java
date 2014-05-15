@@ -9,20 +9,31 @@ import com.google.common.base.Preconditions;
 import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 
+/**
+ * A worker thread for servicing requests.
+ */
 public class WorkerThread extends Thread {
 	private final SSLSocket socket;
 	private HandlerFactory handlerFactory;
 
+	/**
+	 * Construct a new worker thread.
+	 * @param socket The socket being used
+	 */
 	public WorkerThread(SSLSocket socket) {
 		Preconditions.checkNotNull(socket);
 		this.socket = socket;
 		this.handlerFactory = new HandlerFactory();
 	}
 
+	/**
+	 * Service the client's request.
+	 */
 	@Override
 	public void run() {
 		System.err.println("Connection opened");
 		try {
+			// Parse request
 			Message request = MessageUtil.parseMessage(socket.getInputStream());
 			System.err.println(">> " + request.data.length);
 			System.err.println(">> " + request.getTypeString());
@@ -31,6 +42,7 @@ public class WorkerThread extends Thread {
 				System.err.println(">> " + request.getDataString());
 			}
 
+			// Execute request and build response
 			Handler handler = handlerFactory.getHandlerForMessage(request);
 			Message response = handler.execute();
 			System.err.println(">>> " + response.data.length);
@@ -39,6 +51,8 @@ public class WorkerThread extends Thread {
 			if (response.data.length <= 1024) {
 				System.err.println(">>> " + response.getDataString());
 			}
+
+			// Send response
 			socket.getOutputStream().write(MessageUtil.serialiseMessage(response));
 		} catch (IOException e) {
 			e.printStackTrace();

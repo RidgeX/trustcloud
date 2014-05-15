@@ -4,11 +4,20 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
+/**
+ * A message to be sent across the network.
+ */
 public class Message {
 	public MessageType type;
 	public final String[] args;
 	public final byte[] data;
 
+	/**
+	 * Construct a new message.
+	 * @param type The type/command
+	 * @param args The arguments
+	 * @param data The data
+	 */
 	public Message(MessageType type, String[] args, byte[] data) {
 		Preconditions.checkNotNull(type);
 		Preconditions.checkNotNull(args);
@@ -18,14 +27,26 @@ public class Message {
 		this.data = data;
 	}
 
+	/**
+	 * Return the type as a string.
+	 * @return The message type
+	 */
 	public String getTypeString() {
 		return type.name;
 	}
 
+	/**
+	 * Return the arguments as a string.
+	 * @return The message arguments
+	 */
 	public String getArgsString() {
 		return Joiner.on("|").skipNulls().join(args);
 	}
 
+	/**
+	 * Return the data as a string.
+	 * @return The message data
+	 */
 	public String getDataString() {
 		return new String(data, Charsets.ISO_8859_1);
 	}

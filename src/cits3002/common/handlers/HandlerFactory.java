@@ -5,7 +5,15 @@ import cits3002.common.messages.MessageType;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInts;
 
+/**
+ * Factory for constructing message handlers.
+ */
 public class HandlerFactory {
+	/**
+	 * Return a new handler for the current message.
+	 * @param message The message to be handled
+	 * @return The message handler
+	 */
 	public Handler getHandlerForMessage(Message message) {
 		MessageType cmd = message.type;
 		switch (cmd) {
@@ -28,6 +36,11 @@ public class HandlerFactory {
 		return new InvalidHandler();
 	}
 
+	/**
+	 * Create a new GET handler.
+	 * @param message The request message
+	 * @return The message handler
+	 */
 	private Handler createGetHandler(Message message) {
 		Preconditions.checkArgument(message.args.length == 2);
 
@@ -36,6 +49,11 @@ public class HandlerFactory {
 		return new GetHandler(filename, requiredCircumference);
 	}
 
+	/**
+	 * Create a new HASH handler.
+	 * @param message The request message
+	 * @return The message handler
+	 */
 	private Handler createHashHandler(Message message) {
 		Preconditions.checkArgument(message.args.length == 1);
 
@@ -43,10 +61,20 @@ public class HandlerFactory {
 		return new HashHandler(filename);
 	}
 
+	/**
+	 * Create a new LIST handler.
+	 * @param message The request message
+	 * @return The message handler
+	 */
 	private Handler createListHandler(Message message) {
 		return new ListHandler();
 	}
 
+	/**
+	 * Create a new PUT handler.
+	 * @param message The request message
+	 * @return The message handler
+	 */
 	private Handler createPutHandler(Message message) {
 		Preconditions.checkArgument(message.args.length == 2);
 
@@ -61,6 +89,11 @@ public class HandlerFactory {
 		return new PutHandler(filename, isCertificate, message.data);
 	}
 
+	/**
+	 * Create a new VOUCH handler.
+	 * @param message The request message
+	 * @return The message handler
+	 */
 	private Handler createVouchHandler(Message message) {
 		Preconditions.checkArgument(message.args.length == 1);
 

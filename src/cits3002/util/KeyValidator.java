@@ -13,11 +13,17 @@ import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.util.Scanner;
 
+/**
+ * A utility program for validating certificates and key pairs.
+ */
 public class KeyValidator {
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 	}
 
+	/**
+	 * Main method.
+	 */
 	public static void main(String[] args) throws Exception {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter username: ");

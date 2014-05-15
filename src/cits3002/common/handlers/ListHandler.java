@@ -5,10 +5,20 @@ import cits3002.common.messages.MessageType;
 import cits3002.common.messages.MessageUtil;
 import cits3002.server.NamespaceLayer;
 
+/**
+ * Handler for listing files.
+ */
 public class ListHandler implements Handler {
+	/**
+	 * Construct a new LIST handler.
+	 */
 	public ListHandler() {
 	}
 
+	/**
+	 * Handle the request.
+	 * @return The response message
+	 */
 	@Override
 	public Message execute() {
 		try {
