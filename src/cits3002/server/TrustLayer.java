@@ -85,6 +85,7 @@ public class TrustLayer {
 				fileToSigs.put(filename, unpacked);
 			}
 		}
+		sc.close();
 	}
 
 	private static File getSignatureFile(String filename) {

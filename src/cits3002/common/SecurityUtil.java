@@ -44,6 +44,7 @@ public class SecurityUtil {
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		PEMParser parser = new PEMParser(new StringReader(new String(keyData, Charsets.ISO_8859_1)));
 		Object pairObject = parser.readObject();
+		parser.close();
 
 		if (pairObject instanceof PEMEncryptedKeyPair) {
 			Preconditions.checkNotNull(password);
