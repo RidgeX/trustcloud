@@ -65,7 +65,8 @@ public class SecurityUtil {
 	 * @return The keypair object
 	 */
 	public static KeyPair loadKeyPair(byte[] keyData, String password)
-			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+			throws IOException, NoSuchProviderException, NoSuchAlgorithmException,
+			InvalidKeySpecException {
 		PEMParser parser = new PEMParser(new StringReader(new String(keyData, Charsets.ISO_8859_1)));
 		Object pairObject = parser.readObject();
 		parser.close();
@@ -81,7 +82,7 @@ public class SecurityUtil {
 		byte[] encodedPublicKey = pair.getPublicKeyInfo().getEncoded();
 		byte[] encodedPrivateKey = pair.getPrivateKeyInfo().getEncoded();
 
-		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA", "BC");
 
 		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedPublicKey);
 		PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
