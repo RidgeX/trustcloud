@@ -27,9 +27,18 @@ public class WorkerThread extends Thread {
 			System.err.println(">> " + request.data.length);
 			System.err.println(">> " + request.getTypeString());
 			System.err.println(">> " + request.getArgsString());
+			if (request.data.length <= 1024) {
+				System.err.println(">> " + request.getDataString());
+			}
 
 			Handler handler = handlerFactory.getHandlerForMessage(request);
 			Message response = handler.execute();
+			System.err.println(">>> " + response.data.length);
+			System.err.println(">>> " + response.getTypeString());
+			System.err.println(">>> " + response.getArgsString());
+			if (response.data.length <= 1024) {
+				System.err.println(">>> " + response.getDataString());
+			}
 			socket.getOutputStream().write(MessageUtil.serialiseMessage(response));
 		} catch (IOException e) {
 			e.printStackTrace();

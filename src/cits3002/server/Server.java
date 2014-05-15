@@ -6,7 +6,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import java.io.IOException;
 import java.security.Security;
 
 public class Server {
@@ -33,7 +32,8 @@ public class Server {
 		server.run(port);
 	}
 
-	public void run(int port) throws IOException {
+	public void run(int port) throws Exception {
+		NamespaceLayer.init();
 		TrustLayer.init();
 		System.err.println("Starting server");
 		SSLServerSocketFactory ssocketFactory =

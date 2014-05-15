@@ -23,14 +23,14 @@ public class GetHandler implements Handler {
 		try {
 			RingVerifier verifier = new RingVerifier(filename);
 			if (!verifier.hasRingOfSufficientLength(minimumRingLength)) {
-				return MessageUtil.createMessage(MessageType.FAIL, "Minimum trust requirement not met");
+				return MessageUtil.createMessage(MessageType.FAIL, "", "Minimum trust requirement not met");
 			}
 			byte[] data = NamespaceLayer.readFile(filename);
-			return MessageUtil.createMessage(MessageType.OK, data);
+			return MessageUtil.createMessage(MessageType.OK, "", data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "Couldn't fetch file");
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Couldn't fetch file");
 	}
 }

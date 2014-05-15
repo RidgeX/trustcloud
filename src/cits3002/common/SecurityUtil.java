@@ -82,23 +82,26 @@ public class SecurityUtil {
 	}
 
 	public static boolean verifyData(UnpackedSignature unpacked, byte[] data)
-			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException,
-			SignatureException {
+			throws Exception {
 		Signature sig = Signature.getInstance("SHA1withRSA", "BC");
-		sig.initVerify(unpacked.publicKey);
+		sig.initVerify(unpacked.getPublicKey());
 		sig.update(data);
 		return sig.verify(unpacked.signatureData);
 	}
 
 	public static class UnpackedSignature {
-		public PublicKey publicKey;
+		public byte[] publicKey;
 		public byte[] signatureData;
 
-		public UnpackedSignature(PublicKey publicKey, byte[] signatureData) {
+		public UnpackedSignature(byte[] publicKey, byte[] signatureData) {
 			Preconditions.checkNotNull(publicKey);
 			Preconditions.checkNotNull(signatureData);
 			this.publicKey = publicKey;
 			this.signatureData = signatureData;
+		}
+
+		public PublicKey getPublicKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
+			return loadPublicKey(publicKey);
 		}
 
 		@Override
@@ -112,7 +115,7 @@ public class SecurityUtil {
 
 			UnpackedSignature that = (UnpackedSignature) o;
 
-			if (!publicKey.equals(that.publicKey)) {
+			if (!Arrays.equals(publicKey, that.publicKey)) {
 				return false;
 			}
 			if (!Arrays.equals(signatureData, that.signatureData)) {
@@ -124,15 +127,22 @@ public class SecurityUtil {
 
 		@Override
 		public int hashCode() {
-			return Objects.hashCode(publicKey, signatureData);
+			return Objects.hashCode(Arrays.hashCode(publicKey), Arrays.hashCode(signatureData));
 		}
 	}
 
-	public static PublicKey loadBase64PublicKey(String base64PublicKeyData)
+	public static String base64Encode(byte[] data) {
+		return BaseEncoding.base64().encode(data);
+	}
+
+	public static byte[] base64Decode(String data) {
+		return BaseEncoding.base64().decode(data);
+	}
+
+	public static PublicKey loadPublicKey(byte[] data)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
-				BaseEncoding.base64().decode(base64PublicKeyData));
+		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(data);
 		return keyFactory.generatePublic(publicKeySpec);
 	}
 
@@ -143,8 +153,8 @@ public class SecurityUtil {
 				String.class);
 		Preconditions.checkArgument(args.length == 2);
 		return new UnpackedSignature(
-				SecurityUtil.loadBase64PublicKey(args[0]),
-				BaseEncoding.base64().decode(args[1]));
+				base64Decode(args[0]),
+				base64Decode(args[1]));
 	}
 
 	public static UnpackedSignature unpackSignature(byte[] data)
@@ -155,7 +165,7 @@ public class SecurityUtil {
 	public static String packSignature(UnpackedSignature unpacked) {
 		return String.format(
 				"%s %s",
-				BaseEncoding.base64().encode(unpacked.publicKey.getEncoded()),
-				BaseEncoding.base64().encode(unpacked.signatureData));
+				base64Encode(unpacked.publicKey),
+				base64Encode(unpacked.signatureData));
 	}
 }

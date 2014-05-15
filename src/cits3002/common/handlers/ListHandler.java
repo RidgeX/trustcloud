@@ -17,11 +17,11 @@ public class ListHandler implements Handler {
 				builder.append(NamespaceLayer.describeFile(file));
 				builder.append("\n");
 			}
-			return MessageUtil.createMessage(MessageType.OK, builder.toString());
+			return MessageUtil.createMessage(MessageType.OK, "", builder.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "Couldn't list files.");
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Couldn't list files.");
 	}
 }

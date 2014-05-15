@@ -138,15 +138,18 @@ public class Client {
 	public void run(InetAddress host, int port, MessageType messageType, String filename,
 			String certificateName, int minimumRingLength) throws Exception {
 		Message request = null;
-		String[] args = null;
+		String[] args;
 
 		switch (messageType) {
 			case PUT:
-				File file = new File(filename);;
-				String isCertificate = "F";
+				File file;
+				String isCertificate;
 				if (certificateName != null) {
 					file = new File(certificateName);
 					isCertificate = "C";
+				} else {
+					file = new File(filename);
+					isCertificate = "F";
 				}
 				args = new String[] {file.getName(), isCertificate};
 				request = MessageUtil.createMessage(messageType, args, Files.toByteArray(file));
@@ -162,30 +165,33 @@ public class Client {
 				break;
 
 			case VOUCH:
-				Message hashRequest = MessageUtil.createMessage(MessageType.HASH, filename);
-				Message hashResponse = doRequest(host, port, hashRequest);
-				if (!Objects.equal(hashResponse.type, MessageType.OK)) {
-					System.err.println("Error: " + hashResponse.getDataString());
-					return;
-				}
-
 				File keyFile = new File(certificateName + ".key");
 
 				KeyPair keyPair = SecurityUtil.loadKeyPair(Files.toByteArray(keyFile));
-				byte[] sigData = SecurityUtil.signData(hashResponse.data, keyPair.getPrivate());
+				byte[] sigData =
+						SecurityUtil.signData(Files.toByteArray(new File(filename)), keyPair.getPrivate());
 
 				request = MessageUtil.createMessage(
 						messageType,
-						filename,
+						new File(filename).getName(),
 						SecurityUtil.packSignature(
-								new SecurityUtil.UnpackedSignature(keyPair.getPublic(), sigData)));
+								new SecurityUtil.UnpackedSignature(keyPair.getPublic().getEncoded(), sigData))
+				);
 				break;
 		}
-		Message response = doRequest(host, port, request);
-		if (Objects.equal(response.type, MessageType.OK)) {
-			System.out.println(response.getDataString());
+		if (request != null) {
+			Message response = doRequest(host, port, request);
+			if (response != null) {
+				if (Objects.equal(response.type, MessageType.OK)) {
+					System.out.println(response.getDataString());
+				} else {
+					System.err.println("Error: " + response.getDataString());
+				}
+			} else {
+				System.err.println("Unknown error.");
+			}
 		} else {
-			System.err.println("Error: " + response.getDataString());
+			System.err.println("Error constructing message to server.");
 		}
 	}
 

@@ -10,6 +10,6 @@ public class InvalidHandler implements Handler {
 
 	@Override
 	public Message execute() {
-		return MessageUtil.createMessage(MessageType.FAIL, "Unknown command.");
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Unknown command.");
 	}
 }

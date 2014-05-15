@@ -33,40 +33,50 @@ public class RingVerifier {
 			}
 		}
 
-		return false;
+		return minimumRingLength == 0;
 	}
 
 	private Set<String> getConnectedCertificates(String filename) {
 		Collection<SecurityUtil.UnpackedSignature> signatures =
 				TrustLayer.getSignaturesForFile(filename);
+		System.err.println("Signatures for " + filename);
+		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
+			System.err.println(unpacked.publicKey.hashCode());
+		}
 		Set<String> connectedCertificates = Sets.newHashSet();
 		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
 			connectedCertificates.addAll(
-					NamespaceLayer.getCertificateFilenamesForPublicKey(unpacked.publicKey));
+					NamespaceLayer.getCertificateFilenamesForPublicKey(
+							SecurityUtil.base64Encode(unpacked.publicKey))
+			);
+		}
+		System.err.println("Connected certs for " + filename);
+		for (String certs : connectedCertificates) {
+			System.err.println(certs);
 		}
 		return connectedCertificates;
 	}
 
 	private void buildEdges(String certificateFilename) {
 		Set<String> connectedCertificates = getConnectedCertificates(certificateFilename);
+		visited.add(certificateFilename);
 		for (String certificate : connectedCertificates) {
 			edges.put(certificate, certificateFilename);
 			if (!visited.contains(certificate)) {
 				buildEdges(certificate);
-				visited.add(certificateFilename);
 			}
 		}
 	}
 
 	private int dfs(String node) {
-		int max = 0;
+		int max = 1;
+		visited.add(node);
 		for (String adj : edges.get(node)) {
 			if (!visited.contains(adj)) {
-				visited.add(adj);
 				max = Math.max(max, dfs(adj) + 1);
-				visited.remove(adj);
 			}
 		}
+		visited.remove(node);
 		return max;
 	}
 }

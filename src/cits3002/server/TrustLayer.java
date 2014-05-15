@@ -38,8 +38,10 @@ public class TrustLayer {
 	public static boolean addSignatureForFile(String filename,
 			SecurityUtil.UnpackedSignature unpacked) {
 		try {
-			byte[] fileData = NamespaceLayer.readFile(filename);
-			if (!SecurityUtil.verifyData(unpacked, fileData)) {
+			System.err
+					.println("Verifying " + filename + " using public key " + SecurityUtil.base64Encode(
+							unpacked.publicKey));
+			if (!SecurityUtil.verifyData(unpacked, NamespaceLayer.readFile(filename))) {
 				return false;
 			}
 

@@ -11,7 +11,6 @@ import com.google.common.base.Preconditions;
 import java.security.cert.X509Certificate;
 
 public class PutHandler implements Handler {
-
 	private final String filename;
 	private final boolean isCertificate;
 	private final byte[] data;
@@ -34,16 +33,14 @@ public class PutHandler implements Handler {
 			if (isCertificate) {
 				X509Certificate certificate = SecurityUtil.loadCertificate(data);
 				SecurityUtil.checkCertificate(certificate);
-				NamespaceLayer.writeCertificate(filename, certificate);
-			} else {
-				NamespaceLayer.writeFile(filename, data);
 			}
+			NamespaceLayer.writeFile(filename, data, isCertificate);
 
-			return MessageUtil.createMessage(MessageType.OK, "File created.");
+			return MessageUtil.createMessage(MessageType.OK, "", "File created.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "Couldn't create file.");
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Couldn't create file.");
 	}
 }

@@ -20,11 +20,11 @@ public class HashHandler implements Handler {
 	public Message execute() {
 		try {
 			byte[] hash = SecurityUtil.makeHash(NamespaceLayer.readFile(filename));
-			return MessageUtil.createMessage(MessageType.OK, hash);
+			return MessageUtil.createMessage(MessageType.OK, "", hash);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "Couldn't hash file.");
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Couldn't hash file.");
 	}
 }

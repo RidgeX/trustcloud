@@ -8,8 +8,6 @@ import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.PublicKey;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,7 +23,7 @@ public class NamespaceLayer {
 
 	private static final String ILLEGAL_CHARACTER_REGEX = "[\\/:*?\"'<>|]";
 
-	private static final Multimap<PublicKey, String> publicKeyToCertificates =
+	private static final Multimap<String, String> publicKeyToCertificates =
 			MultimapBuilder.hashKeys().hashSetValues().build();
 
 	static {
@@ -37,15 +35,24 @@ public class NamespaceLayer {
 		}
 	}
 
-	public static void writeFile(String filename, byte[] data)
-			throws IOException {
-		Files.write(data, getFile(filename, false));
+	public static void init() throws Exception {
+		for (File file : CERTS_DIR.listFiles()) {
+			X509Certificate certificate = SecurityUtil.loadCertificate(Files.toByteArray(file));
+			publicKeyToCertificates.put(
+					SecurityUtil.base64Encode(certificate.getPublicKey().getEncoded()),
+					file.getName());
+		}
 	}
 
-	public static void writeCertificate(String filename, X509Certificate certificate)
-			throws IOException, CertificateEncodingException {
-		publicKeyToCertificates.put(certificate.getPublicKey(), filename);
-		Files.write(certificate.getEncoded(), getFile(filename, true));
+	public static void writeFile(String filename, byte[] data, boolean isCertificate)
+			throws Exception {
+		if (isCertificate) {
+			X509Certificate certificate = SecurityUtil.loadCertificate(data);
+			publicKeyToCertificates.put(
+					SecurityUtil.base64Encode(certificate.getPublicKey().getEncoded()),
+					filename);
+		}
+		Files.write(data, getFile(filename, isCertificate));
 	}
 
 	public static byte[] readFile(String filename) throws IOException {
@@ -78,7 +85,7 @@ public class NamespaceLayer {
 		if (isCertificate(filename)) {
 			desc = "certificate";
 		}
-		return String.format("%s\t%12d\t%s", DATE_FORMAT.format(date), size, filename);
+		return String.format("%s\t%12d\t%s\t%s", DATE_FORMAT.format(date), size, filename, desc);
 	}
 
 	public static List<String> listFiles() {
@@ -92,7 +99,7 @@ public class NamespaceLayer {
 		return files;
 	}
 
-	public static Collection<String> getCertificateFilenamesForPublicKey(PublicKey publicKey) {
+	public static Collection<String> getCertificateFilenamesForPublicKey(String publicKey) {
 		return publicKeyToCertificates.get(publicKey);
 	}
 
@@ -105,7 +112,7 @@ public class NamespaceLayer {
 	}
 
 	public static boolean isValidFilename(String filename) {
-		return filename.matches(ILLEGAL_CHARACTER_REGEX);
+		return !filename.matches(ILLEGAL_CHARACTER_REGEX);
 	}
 
 	private static File getFile(String filename) {

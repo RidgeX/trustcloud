@@ -25,12 +25,12 @@ public class VouchHandler implements Handler {
 		try {
 			SecurityUtil.UnpackedSignature unpackedSignature = SecurityUtil.unpackSignature(data);
 			if (TrustLayer.addSignatureForFile(filename, unpackedSignature)) {
-				return MessageUtil.createMessage(MessageType.OK, "File signed");
+				return MessageUtil.createMessage(MessageType.OK, "", "File signed");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "Could not sign file");
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Could not sign file");
 	}
 }

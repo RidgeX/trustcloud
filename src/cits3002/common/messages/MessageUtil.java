@@ -60,7 +60,8 @@ public class MessageUtil {
 		return new Message(messageType, new String[0], new byte[0]);
 	}
 
-	public static Message createMessage(MessageType messageType, String argsString, String dataString) {
+	public static Message createMessage(MessageType messageType, String argsString,
+			String dataString) {
 		return createMessage(messageType, argsString, dataString.getBytes(Charsets.ISO_8859_1));
 	}
 
