@@ -41,7 +41,7 @@ public class Client {
 		MessageType messageType = null;
 		String filename = null;
 		String certificateName = null;
-		int minimumRingLength = 3;
+		int minimumRingLength = 0;
 
 		Getopt g = new Getopt("Client", args, "a:c:f:h:lu:v:");
 		g.setOpterr(false);
