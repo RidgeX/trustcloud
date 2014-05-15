@@ -1,5 +1,5 @@
 #!/bin/bash
-sh client.sh -a res/Scc.png
+sh client.sh -a res/cloud.jpg
 sh client.sh -u users/A.crt
 sh client.sh -u users/B.crt
 sh client.sh -u users/C.crt
@@ -8,7 +8,7 @@ sh client.sh -u users/E.crt
 sh client.sh -u users/F.crt
 sh client.sh -u users/G.crt
 sh client.sh -u users/H.crt
-sh client.sh -v res/Scc.png users/F.crt
+sh client.sh -v res/cloud.jpg users/F.crt
 sh client.sh -v users/D.crt users/H.crt
 sh client.sh -v users/H.crt users/D.crt
 sh client.sh -v users/G.crt users/H.crt

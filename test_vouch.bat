@@ -1,5 +1,5 @@
 @echo off
-call client -a res/Scc.png
+call client -a res/cloud.jpg
 call client -u users/A.crt
 call client -u users/B.crt
 call client -u users/C.crt
@@ -8,7 +8,7 @@ call client -u users/E.crt
 call client -u users/F.crt
 call client -u users/G.crt
 call client -u users/H.crt
-call client -v res/Scc.png users/F.crt
+call client -v res/cloud.jpg users/F.crt
 call client -v users/D.crt users/H.crt
 call client -v users/H.crt users/D.crt
 call client -v users/G.crt users/H.crt
