@@ -2,11 +2,13 @@ package cits3002.common;
 
 import cits3002.server.NamespaceLayer;
 import cits3002.server.TrustLayer;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Sets;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,6 +21,7 @@ public class RingVerifier {
 
 	/**
 	 * Construct a new ring verifier.
+	 *
 	 * @param filename The file to be verified
 	 */
 	public RingVerifier(String filename) {
@@ -34,22 +37,34 @@ public class RingVerifier {
 
 	/**
 	 * Determine whether a ring of the required length exists.
+	 *
 	 * @param minimumRingLength The required length
 	 * @return true if the minimum requirement is met
 	 */
 	public boolean hasRingOfSufficientLength(int minimumRingLength) {
+		return computeCycleLength(getLargestRing()) >= minimumRingLength;
+	}
+
+	/**
+	 * Find the largest ring.
+	 *
+	 * @return largest ring
+	 */
+	public List<String> getLargestRing() {
+		List<String> maxCycle = Lists.newArrayList();
 		for (String certificateFilename : ringBases) {
 			visited.clear();
-			if (dfs(certificateFilename) >= minimumRingLength) {
-				return true;
+			List<String> cycle = dfs(certificateFilename, certificateFilename);
+			if (cycle.size() > maxCycle.size()) {
+				maxCycle = cycle;
 			}
 		}
-
-		return minimumRingLength == 0;
+		return Lists.reverse(maxCycle);
 	}
 
 	/**
 	 * Return the names of the certificates that have signed the given file.
+	 *
 	 * @param filename The name of the file
 	 * @return The names of connected certificates
 	 */
@@ -76,6 +91,7 @@ public class RingVerifier {
 
 	/**
 	 * Recursively add edges for the signers of the given certificate.
+	 *
 	 * @param certificateFilename The certificate name
 	 */
 	private void buildEdges(String certificateFilename) {
@@ -90,19 +106,47 @@ public class RingVerifier {
 	}
 
 	/**
-	 * Return the maximum cycle length from the given node.
-	 * @param node The current node
-	 * @return The largest cycle length found so far
+	 * Return the largest cycle from the given node.
+	 *
+	 * @param initial The node the cycle start and end at
+	 * @param node    The current node
+	 * @return The largest cycle found so far
 	 */
-	private int dfs(String node) {
-		int max = 1;
+	private List<String> dfs(String initial, String node) {
+		List<String> maxCycle = Lists.newArrayList();
+
+		// Base case: Start of cycle
+		if (node.equals(initial)) {
+			maxCycle.add(initial);
+		}
+
+		// Base case: Already part of the considered path.
+		// Return fail unless at the initial node.
+		if (visited.contains(node)) {
+			return maxCycle;
+		}
+
 		visited.add(node);
 		for (String adj : edges.get(node)) {
-			if (!visited.contains(adj)) {
-				max = Math.max(max, dfs(adj) + 1);
+			List<String> cycle = dfs(initial, adj);
+			if (!cycle.isEmpty()) {
+				cycle.add(node);
+				if (cycle.size() > maxCycle.size()) {
+					maxCycle = cycle;
+				}
 			}
 		}
 		visited.remove(node);
-		return max;
+		return maxCycle;
+	}
+
+	public static int computeCycleLength(List<String> cycle) {
+		if (cycle.size() == 0) {
+			return 0;
+		}
+		if (cycle.size() == 1) {
+			return 1;
+		}
+		return cycle.size() - 1;
 	}
 }

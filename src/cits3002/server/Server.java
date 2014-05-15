@@ -10,6 +10,7 @@ import java.security.Security;
 
 /**
  * The Trustcloud server application.
+ *
  * @author Eliot Courtney (21141563), Ridge Shrubsall (21112211)
  */
 public class Server {
@@ -34,6 +35,7 @@ public class Server {
 
 	/**
 	 * Main method for the server.
+	 *
 	 * @param args The port to use (optional)
 	 */
 	public static void main(String[] args) throws Exception {
@@ -51,6 +53,7 @@ public class Server {
 
 	/**
 	 * Starts the server process.
+	 *
 	 * @param port The port to listen on
 	 */
 	public void run(int port) throws Exception {

@@ -51,6 +51,7 @@ public class TrustLayer {
 
 	/**
 	 * Add a new signature for the specified file.
+	 *
 	 * @param filename The name of the file
 	 * @param unpacked The unpacked signature
 	 * @return true if the signature was added successfully
@@ -84,6 +85,7 @@ public class TrustLayer {
 
 	/**
 	 * Return a list of signatures for the specified file.
+	 *
 	 * @param filename The name of the file
 	 * @return The list of signatures
 	 */
@@ -93,6 +95,7 @@ public class TrustLayer {
 
 	/**
 	 * Clear all of the signatures for the specified file (called on file replacement).
+	 *
 	 * @param filename The name of the file
 	 */
 	public static void clearSignaturesForFile(String filename) throws IOException {
@@ -107,6 +110,7 @@ public class TrustLayer {
 
 	/**
 	 * Load all of the signatures from the specified '.sig' file.
+	 *
 	 * @param filename The name of the signature file
 	 */
 	private static void loadMapForFile(String filename) throws Exception {
@@ -126,6 +130,7 @@ public class TrustLayer {
 
 	/**
 	 * Locate and return the '.sig' file for the specified file.
+	 *
 	 * @param filename The name of the file
 	 */
 	private static File getSignatureFile(String filename) {

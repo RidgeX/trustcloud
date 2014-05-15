@@ -16,7 +16,8 @@ public class GetHandler implements Handler {
 
 	/**
 	 * Constuct a new GET handler.
-	 * @param filename The name of the file to fetch
+	 *
+	 * @param filename          The name of the file to fetch
 	 * @param minimumRingLength The required ring length
 	 */
 	public GetHandler(String filename, int minimumRingLength) {
@@ -28,6 +29,7 @@ public class GetHandler implements Handler {
 
 	/**
 	 * Handle the request.
+	 *
 	 * @return The response message
 	 */
 	@Override
@@ -35,7 +37,8 @@ public class GetHandler implements Handler {
 		try {
 			RingVerifier verifier = new RingVerifier(filename);
 			if (!verifier.hasRingOfSufficientLength(minimumRingLength)) {
-				return MessageUtil.createMessage(MessageType.FAIL, "", "Minimum trust requirement not met.");
+				return MessageUtil
+						.createMessage(MessageType.FAIL, "", "Minimum trust requirement not met.");
 			}
 			byte[] data = NamespaceLayer.readFile(filename);
 			return MessageUtil.createMessage(MessageType.OK, "", data);

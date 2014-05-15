@@ -17,8 +17,9 @@ public class VouchHandler implements Handler {
 
 	/**
 	 * Construct a new VOUCH handler.
+	 *
 	 * @param filename The file to vouch for
-	 * @param data The encoded public key and signature
+	 * @param data     The encoded public key and signature
 	 */
 	public VouchHandler(String filename, byte[] data) {
 		Preconditions.checkNotNull(filename);
@@ -30,6 +31,7 @@ public class VouchHandler implements Handler {
 
 	/**
 	 * Handle the request.
+	 *
 	 * @return The response message
 	 */
 	@Override
