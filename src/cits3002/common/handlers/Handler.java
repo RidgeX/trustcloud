@@ -8,6 +8,7 @@ import cits3002.common.messages.Message;
 public interface Handler {
 	/**
 	 * Handle the request.
+	 *
 	 * @return The response message
 	 */
 	public Message execute();

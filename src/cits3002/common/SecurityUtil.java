@@ -28,6 +28,7 @@ import java.util.Arrays;
 public class SecurityUtil {
 	/**
 	 * Load a PEM-encoded X509 certificate from a byte array.
+	 *
 	 * @param certData The certificate bytes
 	 * @return The certificate object
 	 */
@@ -41,6 +42,7 @@ public class SecurityUtil {
 
 	/**
 	 * Check the validity of a certificate.
+	 *
 	 * @param certificate The certificate object
 	 * @throws Exception if the certificate is expired or its signature is invalid
 	 */
@@ -51,6 +53,7 @@ public class SecurityUtil {
 
 	/**
 	 * Load a PEM-encoded PKCS#8 keypair from a byte array.
+	 *
 	 * @param keyData The keypair bytes
 	 * @return The keypair object
 	 */
@@ -60,7 +63,8 @@ public class SecurityUtil {
 
 	/**
 	 * Load a PEM-encoded PKCS#8 keypair from a byte array.
-	 * @param keyData The keypair bytes
+	 *
+	 * @param keyData  The keypair bytes
 	 * @param password The password to decrypt the keypair (if applicable)
 	 * @return The keypair object
 	 */
@@ -94,7 +98,8 @@ public class SecurityUtil {
 	}
 
 	/**
-	 * Generate a SHA-1 hash of the given data. 
+	 * Generate a SHA-1 hash of the given data.
+	 *
 	 * @param data The data to be hashed
 	 * @return The hash bytes
 	 */
@@ -105,7 +110,8 @@ public class SecurityUtil {
 
 	/**
 	 * Generate a RSA signature of the given data.
-	 * @param data The data to be hashed and signed
+	 *
+	 * @param data       The data to be hashed and signed
 	 * @param privateKey The private key to sign with
 	 * @return The signature bytes
 	 */
@@ -120,8 +126,9 @@ public class SecurityUtil {
 
 	/**
 	 * Verify an unpacked signature against the given data.
+	 *
 	 * @param unpacked The signature and public key
-	 * @param data The data being vouched
+	 * @param data     The data being vouched
 	 * @return true if the signature is valid
 	 */
 	public static boolean verifyData(UnpackedSignature unpacked, byte[] data)
@@ -141,7 +148,8 @@ public class SecurityUtil {
 
 		/**
 		 * Create a new unpacked signature.
-		 * @param publicKey The public key bytes
+		 *
+		 * @param publicKey     The public key bytes
 		 * @param signatureData The signature bytes
 		 */
 		public UnpackedSignature(byte[] publicKey, byte[] signatureData) {
@@ -153,6 +161,7 @@ public class SecurityUtil {
 
 		/**
 		 * Parse and return the public key.
+		 *
 		 * @return The public key object
 		 */
 		public PublicKey getPublicKey() throws InvalidKeySpecException, NoSuchAlgorithmException {
@@ -188,6 +197,7 @@ public class SecurityUtil {
 
 	/**
 	 * Base64-encode the given data.
+	 *
 	 * @param data The data to be encoded
 	 * @return The encoded data
 	 */
@@ -197,6 +207,7 @@ public class SecurityUtil {
 
 	/**
 	 * Base64-decode the given data.
+	 *
 	 * @param data The data to be decoded
 	 * @return The decoded data
 	 */
@@ -206,6 +217,7 @@ public class SecurityUtil {
 
 	/**
 	 * Load an X509 public key from a byte array.
+	 *
 	 * @param data The public key bytes
 	 * @return The public key object
 	 */
@@ -218,6 +230,7 @@ public class SecurityUtil {
 
 	/**
 	 * Unpack a public key and signature from a pair of Base64-encoded strings.
+	 *
 	 * @param line The signature to unpack
 	 * @return The unpacked signature
 	 */
@@ -234,6 +247,7 @@ public class SecurityUtil {
 
 	/**
 	 * Unpack a public key and signature from the given data.
+	 *
 	 * @param data The signature to unpack
 	 * @return The unpacked signature
 	 */
@@ -244,6 +258,7 @@ public class SecurityUtil {
 
 	/**
 	 * Pack a public key and signature into a pair of Base64-encoded strings.
+	 *
 	 * @param unpacked The signature to pack
 	 * @return The packed signature
 	 */

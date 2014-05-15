@@ -20,9 +20,10 @@ public class PutHandler implements Handler {
 
 	/**
 	 * Construct a new PUT handler.
-	 * @param filename The name of the file to upload
+	 *
+	 * @param filename      The name of the file to upload
 	 * @param isCertificate Whether the file is a certificate
-	 * @param data The file data
+	 * @param data          The file data
 	 */
 	public PutHandler(String filename, boolean isCertificate, byte[] data) {
 		Preconditions.checkNotNull(filename);
@@ -35,6 +36,7 @@ public class PutHandler implements Handler {
 
 	/**
 	 * Handle the request.
+	 *
 	 * @return The response message
 	 */
 	@Override

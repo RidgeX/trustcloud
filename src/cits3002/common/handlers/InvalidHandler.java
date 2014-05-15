@@ -16,6 +16,7 @@ public class InvalidHandler implements Handler {
 
 	/**
 	 * Handle the request.
+	 *
 	 * @return The response message
 	 */
 	@Override

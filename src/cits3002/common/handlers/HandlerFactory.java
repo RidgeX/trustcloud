@@ -11,6 +11,7 @@ import com.google.common.primitives.UnsignedInts;
 public class HandlerFactory {
 	/**
 	 * Return a new handler for the current message.
+	 *
 	 * @param message The message to be handled
 	 * @return The message handler
 	 */
@@ -38,6 +39,7 @@ public class HandlerFactory {
 
 	/**
 	 * Create a new GET handler.
+	 *
 	 * @param message The request message
 	 * @return The message handler
 	 */
@@ -51,6 +53,7 @@ public class HandlerFactory {
 
 	/**
 	 * Create a new HASH handler.
+	 *
 	 * @param message The request message
 	 * @return The message handler
 	 */
@@ -63,6 +66,7 @@ public class HandlerFactory {
 
 	/**
 	 * Create a new LIST handler.
+	 *
 	 * @param message The request message
 	 * @return The message handler
 	 */
@@ -72,6 +76,7 @@ public class HandlerFactory {
 
 	/**
 	 * Create a new PUT handler.
+	 *
 	 * @param message The request message
 	 * @return The message handler
 	 */
@@ -91,6 +96,7 @@ public class HandlerFactory {
 
 	/**
 	 * Create a new VOUCH handler.
+	 *
 	 * @param message The request message
 	 * @return The message handler
 	 */

@@ -1,6 +1,8 @@
 package cits3002.server;
 
+import cits3002.common.RingVerifier;
 import cits3002.common.SecurityUtil;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
@@ -70,8 +72,9 @@ public class NamespaceLayer {
 
 	/**
 	 * Write a file to disk.
-	 * @param filename The name of the file
-	 * @param data The file data
+	 *
+	 * @param filename      The name of the file
+	 * @param data          The file data
 	 * @param isCertificate Whether the file is a certificate
 	 */
 	public static void writeFile(String filename, byte[] data, boolean isCertificate)
@@ -87,6 +90,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Read a file from disk.
+	 *
 	 * @param filename The name of the file
 	 * @return The file data
 	 * @throws IOException if the file doesn't exist
@@ -97,6 +101,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Delete an existing file.
+	 *
 	 * @param filename The name of the file
 	 */
 	public static void deleteFile(String filename) throws Exception {
@@ -110,7 +115,8 @@ public class NamespaceLayer {
 
 	/**
 	 * Return whether the specified file exists.
-	 * @param filename The name of the file
+	 *
+	 * @param filename      The name of the file
 	 * @param isCertificate Whether the file is a certificate
 	 * @return true if the file exists
 	 */
@@ -120,6 +126,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Return whether the specified file exists.
+	 *
 	 * @param filename The name of the file
 	 * @return true if the file exists
 	 */
@@ -129,6 +136,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Return a description of the specified file.
+	 *
 	 * @param filename The name of the file
 	 * @return The file's description
 	 */
@@ -141,11 +149,27 @@ public class NamespaceLayer {
 		if (isCertificate(filename)) {
 			desc = "certificate";
 		}
-		return String.format("%s\t%12d\t%s\t%s", DATE_FORMAT.format(date), size, filename, desc);
+
+		RingVerifier ringVerifier = new RingVerifier(filename);
+		List<String> ring = ringVerifier.getLargestRing();
+		StringBuilder builder = new StringBuilder();
+		builder.append(String.format(
+				"%s\t%12d\t%s\t%d\t%s",
+				DATE_FORMAT.format(date),
+				size,
+				desc,
+				RingVerifier.computeCycleLength(ring),
+				filename));
+		if (ring.size() > 0) {
+			builder.append("\n\t");
+			builder.append(Joiner.on(" -> ").join(ring));
+		}
+		return builder.toString();
 	}
 
 	/**
 	 * Return a list of existing files.
+	 *
 	 * @return The list of filenames
 	 */
 	public static List<String> listFiles() {
@@ -161,6 +185,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Return a list of certificates with the given public key.
+	 *
 	 * @param publicKey The public key being searched for
 	 * @return The list of certificate names
 	 */
@@ -170,6 +195,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Return whether the specified file is a certificate file.
+	 *
 	 * @param filename The name of the file
 	 * @return true if the file is a certificate file
 	 */
@@ -179,6 +205,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Return whether the specified file is a normal file.
+	 *
 	 * @param filename The name of the file
 	 * @return true if the file is a certificate file
 	 */
@@ -188,6 +215,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Return whether the specified file has a valid name.
+	 *
 	 * @param filename The name of the file
 	 * @return true if the filename is valid
 	 */
@@ -197,6 +225,7 @@ public class NamespaceLayer {
 
 	/**
 	 * Locate and return the specified file.
+	 *
 	 * @param filename The name of the file
 	 * @return The file object
 	 */
@@ -213,7 +242,8 @@ public class NamespaceLayer {
 
 	/**
 	 * Locate and return the specified file.
-	 * @param filename The name of the file
+	 *
+	 * @param filename      The name of the file
 	 * @param isCertificate Whether the file is a certificate
 	 * @return The file object
 	 */

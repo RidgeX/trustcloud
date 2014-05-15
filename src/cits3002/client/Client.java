@@ -23,6 +23,7 @@ import java.security.Security;
 
 /**
  * The Trustcloud client application.
+ *
  * @author Eliot Courtney (21141563), Ridge Shrubsall (21112211)
  */
 public class Client {
@@ -47,6 +48,7 @@ public class Client {
 
 	/**
 	 * Main method for the client.
+	 *
 	 * @param args The command-line options to be used
 	 */
 	public static void main(String[] args) throws Exception {
@@ -158,11 +160,12 @@ public class Client {
 
 	/**
 	 * Starts the client process.
-	 * @param host The server's address
-	 * @param port The server's port
-	 * @param messageType The message type
-	 * @param filename The name of the file to upload/fetch/vouch
-	 * @param certificateName The name of the certificate to upload/sign with
+	 *
+	 * @param host              The server's address
+	 * @param port              The server's port
+	 * @param messageType       The message type
+	 * @param filename          The name of the file to upload/fetch/vouch
+	 * @param certificateName   The name of the certificate to upload/sign with
 	 * @param minimumRingLength The minimum trust requirement
 	 */
 	public void run(InetAddress host, int port, MessageType messageType, String filename,
@@ -235,8 +238,9 @@ public class Client {
 
 	/**
 	 * Sends a request to the server and returns the response.
-	 * @param host The server's address
-	 * @param port The server's port
+	 *
+	 * @param host    The server's address
+	 * @param port    The server's port
 	 * @param request The request message
 	 * @return The response message
 	 */

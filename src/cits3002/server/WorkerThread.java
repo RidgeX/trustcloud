@@ -18,6 +18,7 @@ public class WorkerThread extends Thread {
 
 	/**
 	 * Construct a new worker thread.
+	 *
 	 * @param socket The socket being used
 	 */
 	public WorkerThread(SSLSocket socket) {

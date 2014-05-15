@@ -15,6 +15,7 @@ public class HashHandler implements Handler {
 
 	/**
 	 * Constuct a new HASH handler.
+	 *
 	 * @param filename The name of the file to hash
 	 */
 	public HashHandler(String filename) {
@@ -25,6 +26,7 @@ public class HashHandler implements Handler {
 
 	/**
 	 * Handle the request.
+	 *
 	 * @return The response message
 	 */
 	@Override
