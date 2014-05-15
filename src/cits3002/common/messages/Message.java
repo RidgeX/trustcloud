@@ -1,30 +1,29 @@
-package cits3002.common;
+package cits3002.common.messages;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 
 public class Message {
+	public MessageType type;
 	public final String[] args;
 	public final byte[] data;
 
-	public Message(String argsString) {
-		this(argsString, new byte[0]);
-	}
-
-	public Message(String argsString, String dataString) {
-		this(argsString, dataString.getBytes(Charsets.ISO_8859_1));
-	}
-
-	public Message(String argsString, byte[] data) {
-		Preconditions.checkNotNull(argsString);
+	public Message(MessageType type, String[] args, byte[] data) {
+		Preconditions.checkNotNull(type);
+		Preconditions.checkNotNull(args);
 		Preconditions.checkNotNull(data);
-		this.args = argsString.split("\\|");
+		this.type = type;
+		this.args = args;
 		this.data = data;
 	}
 
+	public String getTypeString() {
+		return type.name;
+	}
+
 	public String getArgsString() {
-		return Joiner.on(' ').join(args);
+		return Joiner.on("|").skipNulls().join(args);
 	}
 
 	public String getDataString() {

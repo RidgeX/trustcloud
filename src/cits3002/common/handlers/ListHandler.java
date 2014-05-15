@@ -1,26 +1,27 @@
 package cits3002.common.handlers;
 
-import cits3002.common.CommandHandler;
-import cits3002.common.Message;
+import cits3002.common.messages.Message;
+import cits3002.common.messages.MessageType;
+import cits3002.common.messages.MessageUtil;
 import cits3002.server.NamespaceLayer;
-import java.io.File;
-import java.util.List;
 
-public class ListHandler extends CommandHandler {
-	public ListHandler() {}
+public class ListHandler implements Handler {
+	public ListHandler() {
+	}
 
 	@Override
 	public Message execute() {
 		try {
-			StringBuilder sb = new StringBuilder();
-			List<File> files = NamespaceLayer.listFiles();
-			for (File f : files) {
-				sb.append(NamespaceLayer.describeFile(f) + "\n");
+			StringBuilder builder = new StringBuilder();
+			for (String file : NamespaceLayer.listFiles()) {
+				builder.append(NamespaceLayer.describeFile(file));
+				builder.append("\n");
 			}
-			return new Message(RESULT_OK, sb.toString());
+			return MessageUtil.createMessage(MessageType.OK, "", builder.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new Message(RESULT_FAIL, "Couldn't list files.");
 		}
+
+		return MessageUtil.createMessage(MessageType.FAIL, "", "Couldn't list files.");
 	}
 }

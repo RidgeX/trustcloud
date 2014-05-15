@@ -16,7 +16,7 @@ call client -f test.crt
 echo.
 
 echo Vouch for file:
-call client -v hello.txt res/test.crt
+call client -v res/hello.txt res/test.crt
 echo.
 
 echo List directory:

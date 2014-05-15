@@ -1,42 +1,52 @@
 package cits3002.server;
 
-import cits3002.common.CommandHandler;
-import cits3002.common.Message;
-import cits3002.common.MessageUtil;
+import cits3002.common.handlers.Handler;
+import cits3002.common.handlers.HandlerFactory;
+import cits3002.common.messages.Message;
+import cits3002.common.messages.MessageUtil;
 import com.google.common.base.Preconditions;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+
 import javax.net.ssl.SSLSocket;
+import java.io.IOException;
 
 public class WorkerThread extends Thread {
-	private SSLSocket socket;
+	private final SSLSocket socket;
+	private HandlerFactory handlerFactory;
 
 	public WorkerThread(SSLSocket socket) {
 		Preconditions.checkNotNull(socket);
 		this.socket = socket;
+		this.handlerFactory = new HandlerFactory();
 	}
 
 	@Override
 	public void run() {
 		System.err.println("Connection opened");
 		try {
-			DataInputStream in = new DataInputStream(socket.getInputStream());
-			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-
-			Message request = MessageUtil.receive(in);
+			Message request = MessageUtil.parseMessage(socket.getInputStream());
 			System.err.println(">> " + request.data.length);
+			System.err.println(">> " + request.getTypeString());
 			System.err.println(">> " + request.getArgsString());
+			if (request.data.length <= 1024) {
+				System.err.println(">> " + request.getDataString());
+			}
 
-			CommandHandler handler = CommandHandler.getHandler(request);
+			Handler handler = handlerFactory.getHandlerForMessage(request);
 			Message response = handler.execute();
-			MessageUtil.send(out, response);
+			System.err.println(">>> " + response.data.length);
+			System.err.println(">>> " + response.getTypeString());
+			System.err.println(">>> " + response.getArgsString());
+			if (response.data.length <= 1024) {
+				System.err.println(">>> " + response.getDataString());
+			}
+			socket.getOutputStream().write(MessageUtil.serialiseMessage(response));
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			try {
 				socket.close();
-			} catch (IOException e) {}
+			} catch (IOException e) {
+			}
 		}
 		System.err.println("Connection closed");
 	}

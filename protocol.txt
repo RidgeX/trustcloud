@@ -1,31 +1,41 @@
 [Commands]
-Two newline terminated lines followed by binary data. The length of the binary data is specified on the first line as an ASCII unsigned integer. Example command:
+Three newline terminated lines followed by binary data.
+The length of the binary data is specified on the first line as an ASCII unsigned integer.
+The message type is specified on the next line. Following is a vertical bar separated
+list of arguments on the third line. Then there is the binary data.
 
+Example command:
 8\n
-PUT|test.txt|0\n
+PUT\n
+test.txt|0\n
 testdata
 
 Add/replace file command:
 <file length>\n
-PUT|<filename>|0\n
+PUT\n
+<filename>|F\n
 <file>
 
 Add/replace file response:
 0\n
 OK\n
+\n
 
 Add/replace certificate command:
 <file length>\n
-PUT|<filename>|1\n
+PUT\n
+<filename>|C\n
 <file>
 
 Add/replace certificate response:
 0\n
 OK\n
+\n
 
 Fetch command:
 0\n
-GET|<filename>|<min-ring-length>\n
+GET\n
+<filename>|<min-ring-length>\n
 
 Fetch response:
 <file length>\n
@@ -35,42 +45,51 @@ OK\n
 List files command:
 0\n
 LIST\n
+\n
 
 List files response:
 <description length>\n
 OK\n
+\n
 <description>
 
 Hash command:
 0\n
-HASH|<filename>\n
+HASH\n
+<filename>\n
 
 Hash response:
 20\n
 OK\n
+\n
 <SHA1 hash bytes>
 
 Vouch file command:
 128\n
-VOUCH|<filename>|<certname>\n
+VOUCH\n
+<filename>|<certname>\n
 <signature>
 
 Vouch file response:
 0\n
 OK\n
+\n
 
 [Responses]
 Same format as commands. Example response:
 15\n
 OK\n
+\n
 Example message
 
 Success response:
 <binary data length>\n
 OK\n
+\n
 <binary data>
 
 Fail response:
 <binary data length>\n
 FAIL\n
+\n
 <binary data>
