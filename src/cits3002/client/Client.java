@@ -14,6 +14,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -183,7 +184,12 @@ public class Client {
 			Message response = doRequest(host, port, request);
 			if (response != null) {
 				if (Objects.equal(response.type, MessageType.OK)) {
-					System.out.println(response.getDataString());
+					if (Objects.equal(messageType, MessageType.GET)) {
+						DataOutputStream out = new DataOutputStream(System.out);
+						out.write(response.data);
+					} else {
+						System.out.println(response.getDataString());
+					}
 				} else {
 					System.err.println("Error: " + response.getDataString());
 				}
