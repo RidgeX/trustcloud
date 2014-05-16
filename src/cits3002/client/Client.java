@@ -52,7 +52,7 @@ public class Client {
 	 * @param args The command-line options to be used
 	 */
 	public static void main(String[] args) throws Exception {
-		InetAddress host = InetAddress.getLoopbackAddress();
+		InetAddress host = InetAddress.getLocalHost();
 		int port = DEFAULT_PORT;
 
 		MessageType messageType = null;
