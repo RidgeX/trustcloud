@@ -19,3 +19,6 @@
   * `res/` contains some example data files (text and images).
   * `users/` contains certificates and keys for nine example users.
   * The client/server protocol is documented in `protocol.txt`.
+  * When vouching for a file using `./client.sh -v <filename> <certname>`:
+    * The client expects to find a private key file named `<certname>.key`.
+    * The file being vouched for needs to exist locally with the same name.
