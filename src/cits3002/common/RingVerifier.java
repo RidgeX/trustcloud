@@ -48,7 +48,7 @@ public class RingVerifier {
 	/**
 	 * Find the largest ring.
 	 *
-	 * @return largest ring
+	 * @return The names of the certificates in the ring
 	 */
 	public List<String> getLargestRing() {
 		List<String> maxCycle = Lists.newArrayList();
@@ -108,7 +108,7 @@ public class RingVerifier {
 	/**
 	 * Return the largest cycle from the given node.
 	 *
-	 * @param initial The node the cycle start and end at
+	 * @param initial The node the cycle starts and ends at
 	 * @param node    The current node
 	 * @return The largest cycle found so far
 	 */

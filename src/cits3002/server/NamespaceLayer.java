@@ -42,6 +42,11 @@ public class NamespaceLayer {
 	private static final String ILLEGAL_CHARACTER_REGEX = "[\\/:*?\"'<>|]";
 
 	/**
+	 * Debug flag for printing ring paths.
+	 */
+	private static final boolean RING_DEBUG = false;
+
+	/**
 	 * A map of Base64-encoded public keys to certificate names.
 	 */
 	private static final Multimap<String, String> publicKeyToCertificates =
@@ -145,22 +150,22 @@ public class NamespaceLayer {
 		long size = file.length();
 		Date date = new Date(file.lastModified());
 
-		String desc = "normal file";
+		String desc = "File";
 		if (isCertificate(filename)) {
-			desc = "certificate";
+			desc = "Cert";
 		}
 
 		RingVerifier ringVerifier = new RingVerifier(filename);
 		List<String> ring = ringVerifier.getLargestRing();
 		StringBuilder builder = new StringBuilder();
 		builder.append(String.format(
-				"%s\t%12d\t%s\t%d\t%s",
+				"%s\t<%s> %12d\t%3d\t%s",
 				DATE_FORMAT.format(date),
-				size,
 				desc,
+				size,
 				RingVerifier.computeCycleLength(ring),
 				filename));
-		if (ring.size() > 0) {
+		if (RING_DEBUG && ring.size() > 0) {
 			builder.append("\n\t");
 			builder.append(Joiner.on(" -> ").join(ring));
 		}
