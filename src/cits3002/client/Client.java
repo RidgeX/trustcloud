@@ -31,10 +31,8 @@ public class Client {
 	 * A list of allowed cipher suites for establishing a connection.
 	 */
 	private static final String[] ANONYMOUS_CIPHERS = new String[] {
-			"TLS_DH_anon_WITH_AES_256_CBC_SHA256",
-			"TLS_DH_anon_WITH_AES_256_CBC_SHA",
-			"TLS_DH_anon_WITH_AES_128_CBC_SHA256",
-			"TLS_DH_anon_WITH_AES_128_CBC_SHA"
+			"TLS_DH_anon_WITH_AES_128_CBC_SHA",
+			"SSL_DH_anon_WITH_RC4_128_MD5"
 	};
 
 	/**
