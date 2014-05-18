@@ -68,8 +68,8 @@ OK\n
 Vouch file command:
 128\n
 VOUCH\n
-<filename>|<certname>\n
-<signature>
+<filename>\n
+<Base64 public key> <Base64 signature>
 
 Vouch file response:
 0\n
