@@ -182,11 +182,14 @@ public class Client {
 					file = new File(filename);
 					isCertificate = "F";
 				}
-				request = MessageUtil.createMessage(messageType, ImmutableList.of(file.getName(), isCertificate), Files.toByteArray(file));
+				request = MessageUtil
+						.createMessage(messageType, ImmutableList.of(file.getName(), isCertificate),
+								Files.toByteArray(file));
 				break;
 
 			case GET:
-				request = MessageUtil.createMessage(messageType, ImmutableList.of(filename, Integer.toString(minimumRingLength)));
+				request = MessageUtil.createMessage(messageType,
+						ImmutableList.of(filename, Integer.toString(minimumRingLength)));
 				break;
 
 			case LIST:
@@ -204,7 +207,8 @@ public class Client {
 						messageType,
 						ImmutableList.of(new File(filename).getName(),
 								SecurityUtil.base64Encode(keyPair.getPublic().getEncoded()),
-								SecurityUtil.base64Encode(sigData)));
+								SecurityUtil.base64Encode(sigData))
+				);
 				break;
 		}
 

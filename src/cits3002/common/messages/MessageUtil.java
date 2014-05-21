@@ -2,7 +2,6 @@ package cits3002.common.messages;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Enums;
-import com.google.common.base.Joiner;
 import com.google.common.io.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +39,7 @@ public class MessageUtil {
 	 * Create a new message with no data.
 	 *
 	 * @param messageType The type
-	 * @param args       The arguments
+	 * @param args        The arguments
 	 * @return The constructed message
 	 */
 	public static Message createMessage(MessageType messageType, List<String> args) {
@@ -51,7 +50,7 @@ public class MessageUtil {
 	 * Create a new message with no arguments.
 	 *
 	 * @param messageType The type
-	 * @param data       The data
+	 * @param data        The data
 	 * @return The constructed message
 	 */
 	public static Message createMessage(MessageType messageType, byte[] data) {
@@ -62,7 +61,7 @@ public class MessageUtil {
 	 * Create a new message with no arguments.
 	 *
 	 * @param messageType The type
-	 * @param data       The data (in string form)
+	 * @param data        The data (in string form)
 	 * @return The constructed message
 	 */
 	public static Message createMessage(MessageType messageType, String data) {
@@ -99,7 +98,6 @@ public class MessageUtil {
 	 * Create a new message with no arguments or data.
 	 *
 	 * @param messageType The type
-	 * @param args        The arguments
 	 * @return The constructed message
 	 */
 	public static Message createMessage(MessageType messageType) {

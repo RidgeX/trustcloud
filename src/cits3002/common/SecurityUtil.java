@@ -195,10 +195,8 @@ public class SecurityUtil {
 
 			SignaturePair that = (SignaturePair) o;
 
-			if (!Arrays.equals(publicKey, that.publicKey)) {
-				return false;
-			}
-			return Arrays.equals(signatureData, that.signatureData);
+			return Arrays.equals(publicKey, that.publicKey) &&
+					Arrays.equals(signatureData, that.signatureData);
 		}
 
 		@Override
