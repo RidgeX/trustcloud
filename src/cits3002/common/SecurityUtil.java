@@ -123,18 +123,18 @@ public class SecurityUtil {
 	}
 
 	/**
-	 * Verify an unpacked signature against the given data.
+	 * Verify a signature against the given data.
 	 *
-	 * @param unpacked The signature and public key
-	 * @param data     The data being vouched
+	 * @param signaturePair The signature and public key
+	 * @param data          The data being vouched
 	 * @return true if the signature is valid
 	 */
-	public static boolean verifyData(SignaturePair unpacked, byte[] data)
+	public static boolean verifyData(SignaturePair signaturePair, byte[] data)
 			throws Exception {
 		Signature sig = Signature.getInstance("SHA1withRSA", "BC");
-		sig.initVerify(unpacked.getPublicKey());
+		sig.initVerify(signaturePair.getPublicKey());
 		sig.update(data);
-		return sig.verify(unpacked.signatureData);
+		return sig.verify(signaturePair.signatureData);
 	}
 
 	/**

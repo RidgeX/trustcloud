@@ -72,13 +72,13 @@ public class RingVerifier {
 		Collection<SecurityUtil.SignaturePair> signatures =
 				TrustLayer.getSignaturesForFile(filename);
 		System.err.println("Signatures for " + filename);
-		for (SecurityUtil.SignaturePair unpacked : signatures) {
-			System.err.println(unpacked.publicKey.hashCode());
+		for (SecurityUtil.SignaturePair signaturePair : signatures) {
+			System.err.println(signaturePair.publicKey.hashCode());
 		}
 		Set<String> connectedCertificates = Sets.newHashSet();
-		for (SecurityUtil.SignaturePair unpacked : signatures) {
+		for (SecurityUtil.SignaturePair signaturePair : signatures) {
 			connectedCertificates.addAll(
-					NamespaceLayer.getCertificateFilenamesForPublicKey(unpacked.getBase64PublicKey())
+					NamespaceLayer.getCertificateFilenamesForPublicKey(signaturePair.getBase64PublicKey())
 			);
 		}
 		System.err.println("Connected certs for " + filename);

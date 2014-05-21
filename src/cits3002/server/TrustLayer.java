@@ -56,7 +56,7 @@ public class TrustLayer {
 	 * Add a new signature for the specified file.
 	 *
 	 * @param filename      The name of the file
-	 * @param signaturePair The unpacked signature
+	 * @param signaturePair The signature
 	 * @return true if the signature was added successfully
 	 */
 	public static boolean addSignatureForFile(String filename,
@@ -130,9 +130,9 @@ public class TrustLayer {
 					Splitter.on(' ').omitEmptyStrings().trimResults().split(sc.nextLine()),
 					String.class);
 			Preconditions.checkArgument(args.length == 2);
-			SecurityUtil.SignaturePair unpacked = new SecurityUtil.SignaturePair(args[0], args[1]);
-			if (SecurityUtil.verifyData(unpacked, NamespaceLayer.readFile(filename))) {
-				fileToSigs.put(filename, unpacked);
+			SecurityUtil.SignaturePair signaturePair = new SecurityUtil.SignaturePair(args[0], args[1]);
+			if (SecurityUtil.verifyData(signaturePair, NamespaceLayer.readFile(filename))) {
+				fileToSigs.put(filename, signaturePair);
 			}
 		}
 		sc.close();
