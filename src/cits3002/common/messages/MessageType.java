@@ -5,7 +5,6 @@ package cits3002.common.messages;
  */
 public enum MessageType {
 	GET("GET"),
-	HASH("HASH"),
 	LIST("LIST"),
 	PUT("PUT"),
 	VOUCH("VOUCH"),
@@ -13,7 +12,7 @@ public enum MessageType {
 	FAIL("FAIL"),
 	INVALID("INVALID");
 
-	public String name;
+	public final String name;
 
 	/**
 	 * Construct a new message type.

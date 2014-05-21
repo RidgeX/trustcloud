@@ -13,8 +13,8 @@ import com.google.common.base.Preconditions;
  */
 public class VouchHandler implements Handler {
 	private final String filename;
-	private String base64PublicKey;
-	private String base64SignatureData;
+	private final String base64PublicKey;
+	private final String base64SignatureData;
 
 	/**
 	 * Construct a new VOUCH handler.
@@ -44,12 +44,12 @@ public class VouchHandler implements Handler {
 			SecurityUtil.SignaturePair signaturePair =
 					new SecurityUtil.SignaturePair(base64PublicKey, base64SignatureData);
 			if (TrustLayer.addSignatureForFile(filename, signaturePair)) {
-				return MessageUtil.createMessage(MessageType.OK, "", "File signed.");
+				return MessageUtil.createMessage(MessageType.OK, "File signed.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "", "Could not sign file.");
+		return MessageUtil.createMessage(MessageType.FAIL, "Could not sign file.");
 	}
 }

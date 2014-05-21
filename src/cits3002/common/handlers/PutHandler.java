@@ -51,11 +51,11 @@ public class PutHandler implements Handler {
 			}
 			NamespaceLayer.writeFile(filename, data, isCertificate);
 
-			return MessageUtil.createMessage(MessageType.OK, "", "File created.");
+			return MessageUtil.createMessage(MessageType.OK, "File created.");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "", "Couldn't create file.");
+		return MessageUtil.createMessage(MessageType.FAIL, "Couldn't create file.");
 	}
 }

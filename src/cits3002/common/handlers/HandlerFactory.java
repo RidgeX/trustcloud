@@ -20,16 +20,10 @@ public class HandlerFactory {
 		switch (cmd) {
 			case GET:
 				return createGetHandler(message);
-
-			case HASH:
-				return createHashHandler(message);
-
 			case LIST:
 				return createListHandler(message);
-
 			case PUT:
 				return createPutHandler(message);
-
 			case VOUCH:
 				return createVouchHandler(message);
 		}
@@ -49,19 +43,6 @@ public class HandlerFactory {
 		String filename = message.args[0];
 		int requiredCircumference = UnsignedInts.parseUnsignedInt(message.args[1]);
 		return new GetHandler(filename, requiredCircumference);
-	}
-
-	/**
-	 * Create a new HASH handler.
-	 *
-	 * @param message The request message
-	 * @return The message handler
-	 */
-	private Handler createHashHandler(Message message) {
-		Preconditions.checkArgument(message.args.length == 1);
-
-		String filename = message.args[0];
-		return new HashHandler(filename);
 	}
 
 	/**
@@ -101,7 +82,7 @@ public class HandlerFactory {
 	 * @return The message handler
 	 */
 	private Handler createVouchHandler(Message message) {
-		Preconditions.checkArgument(message.args.length == 1);
+		Preconditions.checkArgument(message.args.length == 3);
 
 		String filename = message.args[0];
 		String base64PublicKey = message.args[1];

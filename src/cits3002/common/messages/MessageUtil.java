@@ -2,8 +2,7 @@ package cits3002.common.messages;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Enums;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
+import com.google.common.base.Joiner;
 import com.google.common.io.ByteStreams;
 
 import java.io.ByteArrayOutputStream;
@@ -23,32 +22,51 @@ public class MessageUtil {
 	 */
 	public static byte[] serialiseMessage(Message message) throws IOException {
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		buffer.write(Integer.toString(message.data.length).getBytes(Charsets.ISO_8859_1));
-		buffer.write("\n".getBytes(Charsets.ISO_8859_1));
 		buffer.write(message.getTypeString().getBytes(Charsets.ISO_8859_1));
 		buffer.write("\n".getBytes(Charsets.ISO_8859_1));
-		buffer.write(message.getArgsString().getBytes(Charsets.ISO_8859_1));
+		buffer.write(Integer.toString(message.args.length).getBytes(Charsets.ISO_8859_1));
 		buffer.write("\n".getBytes(Charsets.ISO_8859_1));
+		buffer.write(Integer.toString(message.data.length).getBytes(Charsets.ISO_8859_1));
+		buffer.write("\n".getBytes(Charsets.ISO_8859_1));
+		for (String arg : message.args) {
+			buffer.write(arg.getBytes(Charsets.ISO_8859_1));
+			buffer.write("\n".getBytes(Charsets.ISO_8859_1));
+		}
 		buffer.write(message.data);
 		return buffer.toByteArray();
 	}
 
 	/**
-	 * Create a new message (delimited arguments).
+	 * Create a new message with no data.
 	 *
 	 * @param messageType The type
-	 * @param argsString  The arguments
-	 * @param data        The data
+	 * @param args       The arguments
 	 * @return The constructed message
 	 */
-	public static Message createMessage(MessageType messageType, String argsString, byte[] data) {
-		return new Message(
-				messageType,
-				Iterables.toArray(
-						Splitter.on('|').omitEmptyStrings().trimResults().split(argsString),
-						String.class),
-				data
-		);
+	public static Message createMessage(MessageType messageType, List<String> args) {
+		return createMessage(messageType, args, new byte[0]);
+	}
+
+	/**
+	 * Create a new message with no arguments.
+	 *
+	 * @param messageType The type
+	 * @param data       The data
+	 * @return The constructed message
+	 */
+	public static Message createMessage(MessageType messageType, byte[] data) {
+		return new Message(messageType, new String[0], data);
+	}
+
+	/**
+	 * Create a new message with no arguments.
+	 *
+	 * @param messageType The type
+	 * @param data       The data (in string form)
+	 * @return The constructed message
+	 */
+	public static Message createMessage(MessageType messageType, String data) {
+		return new Message(messageType, new String[0], data.getBytes(Charsets.ISO_8859_1));
 	}
 
 	/**
@@ -62,7 +80,7 @@ public class MessageUtil {
 	public static Message createMessage(String typeString, List<String> args, byte[] data) {
 		return createMessage(
 				Enums.getIfPresent(MessageType.class, typeString).or(MessageType.INVALID),
-				args.toArray(new String[args.size()]),
+				args,
 				data);
 	}
 
@@ -73,43 +91,19 @@ public class MessageUtil {
 	 * @param args        The arguments
 	 * @return The constructed message
 	 */
-	public static Message createMessage(MessageType messageType, String... args) {
-		return new Message(messageType, args, new byte[0]);
+	public static Message createMessage(MessageType messageType, List<String> args, byte[] data) {
+		return new Message(messageType, args.toArray(new String[args.size()]), data);
 	}
 
 	/**
-	 * Create a new message (type string, argument array).
+	 * Create a new message with no arguments or data.
 	 *
 	 * @param messageType The type
 	 * @param args        The arguments
-	 * @param data        The data
-	 * @return The constructed message
-	 */
-	public static Message createMessage(MessageType messageType, String[] args, byte[] data) {
-		return new Message(messageType, args, data);
-	}
-
-	/**
-	 * Create a new message (no data).
-	 *
-	 * @param messageType The type
 	 * @return The constructed message
 	 */
 	public static Message createMessage(MessageType messageType) {
 		return new Message(messageType, new String[0], new byte[0]);
-	}
-
-	/**
-	 * Create a new message (delimited arguments, data string).
-	 *
-	 * @param messageType The type
-	 * @param argsString  The arguments
-	 * @param dataString  The data
-	 * @return The constructed message
-	 */
-	public static Message createMessage(MessageType messageType, String argsString,
-			String dataString) {
-		return createMessage(messageType, argsString, dataString.getBytes(Charsets.ISO_8859_1));
 	}
 
 	/**

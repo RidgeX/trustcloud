@@ -38,7 +38,7 @@ public class TrustLayer {
 	/**
 	 * Initialise this layer.
 	 */
-	public static void init() throws IOException {
+	public static void init() {
 		// Populate filename -> signature map
 		for (File f : SIGS_DIR.listFiles()) {
 			try {
@@ -104,7 +104,7 @@ public class TrustLayer {
 	 *
 	 * @param filename The name of the file
 	 */
-	public static void clearSignaturesForFile(String filename) throws IOException {
+	public static void clearSignaturesForFile(String filename) {
 		File sigFile = getSignatureFile(filename);
 		if (sigFile.exists()) {
 			sigFile.delete();

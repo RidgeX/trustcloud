@@ -7,7 +7,6 @@ import com.google.common.primitives.UnsignedInts;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -19,14 +18,14 @@ public class MessageReader implements ByteProcessor<Message> {
 	 */
 	private static final int MAX_BINARY_DATA = 100 * 1024 * 1024; // 100 MB
 
-	private ByteArrayOutputStream byteStream;
+	private final ByteArrayOutputStream byteStream;
 	private String currentLine;
 	private State state;
 
 	private String typeString;
 	private int argsLength;
 	private int dataLength;
-	private List<String> args;
+	private final List<String> args;
 	private byte[] data;
 
 
@@ -115,8 +114,7 @@ public class MessageReader implements ByteProcessor<Message> {
 	 * @param len   The length
 	 * @return The number of bytes read
 	 */
-	private int processBytesInternal(byte[] bytes, int off, int len)
-			throws UnsupportedEncodingException {
+	private int processBytesInternal(byte[] bytes, int off, int len) {
 		if (state == State.DONE) {
 			return len;
 		}
@@ -126,7 +124,7 @@ public class MessageReader implements ByteProcessor<Message> {
 			byteStream.write(bytes, off, toRead);
 			dataLength -= toRead;
 			if (dataLength == 0) {
-				bytes = byteStream.toByteArray();
+				data = byteStream.toByteArray();
 				state = State.DONE;
 			}
 			return toRead;
@@ -137,7 +135,7 @@ public class MessageReader implements ByteProcessor<Message> {
 			switch (state) {
 				case READING_TYPE:
 					typeString = currentLine;
-					state = State.READING_ARGUMENTS;
+					state = State.READING_ARGUMENT_LENGTH;
 					break;
 				case READING_ARGUMENT_LENGTH:
 					argsLength = UnsignedInts.parseUnsignedInt(currentLine);
@@ -148,7 +146,9 @@ public class MessageReader implements ByteProcessor<Message> {
 					if (dataLength > MAX_BINARY_DATA) {
 						throw new IllegalArgumentException();
 					}
-					state = State.READING_TYPE;
+					state = argsLength == 0 ?
+							(dataLength == 0 ? State.DONE : State.READING_DATA) :
+							State.READING_ARGUMENTS;
 					break;
 				case READING_ARGUMENTS:
 					args.add(currentLine);

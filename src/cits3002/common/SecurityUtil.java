@@ -141,8 +141,8 @@ public class SecurityUtil {
 	 * An signature pair object, which bundles a public key with a signature.
 	 */
 	public static class SignaturePair {
-		public byte[] publicKey;
-		public byte[] signatureData;
+		public final byte[] publicKey;
+		public final byte[] signatureData;
 
 		/**
 		 * Create a new signature pair.
@@ -198,11 +198,7 @@ public class SecurityUtil {
 			if (!Arrays.equals(publicKey, that.publicKey)) {
 				return false;
 			}
-			if (!Arrays.equals(signatureData, that.signatureData)) {
-				return false;
-			}
-
-			return true;
+			return Arrays.equals(signatureData, that.signatureData);
 		}
 
 		@Override

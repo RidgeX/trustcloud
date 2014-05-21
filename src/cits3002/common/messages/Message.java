@@ -8,7 +8,7 @@ import com.google.common.base.Preconditions;
  * A message to be sent across the network.
  */
 public class Message {
-	public MessageType type;
+	public final MessageType type;
 	public final String[] args;
 	public final byte[] data;
 
@@ -43,7 +43,7 @@ public class Message {
 	 * @return The message arguments
 	 */
 	public String getArgsString() {
-		return Joiner.on("|").skipNulls().join(args);
+		return Joiner.on("\n").skipNulls().join(args) + "\n";
 	}
 
 	/**
