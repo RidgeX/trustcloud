@@ -69,17 +69,16 @@ public class RingVerifier {
 	 * @return The names of connected certificates
 	 */
 	private Set<String> getConnectedCertificates(String filename) {
-		Collection<SecurityUtil.UnpackedSignature> signatures =
+		Collection<SecurityUtil.SignaturePair> signatures =
 				TrustLayer.getSignaturesForFile(filename);
 		System.err.println("Signatures for " + filename);
-		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
+		for (SecurityUtil.SignaturePair unpacked : signatures) {
 			System.err.println(unpacked.publicKey.hashCode());
 		}
 		Set<String> connectedCertificates = Sets.newHashSet();
-		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
+		for (SecurityUtil.SignaturePair unpacked : signatures) {
 			connectedCertificates.addAll(
-					NamespaceLayer.getCertificateFilenamesForPublicKey(
-							SecurityUtil.base64Encode(unpacked.publicKey))
+					NamespaceLayer.getCertificateFilenamesForPublicKey(unpacked.getBase64PublicKey())
 			);
 		}
 		System.err.println("Connected certs for " + filename);

@@ -104,7 +104,8 @@ public class HandlerFactory {
 		Preconditions.checkArgument(message.args.length == 1);
 
 		String filename = message.args[0];
-		return new VouchHandler(filename, message.data);
+		String base64PublicKey = message.args[1];
+		String base64SignatureData = message.args[2];
+		return new VouchHandler(filename, base64PublicKey, base64SignatureData);
 	}
-
 }

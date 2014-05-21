@@ -17,6 +17,7 @@ public enum MessageType {
 
 	/**
 	 * Construct a new message type.
+	 *
 	 * @param name The type name
 	 */
 	private MessageType(String name) {

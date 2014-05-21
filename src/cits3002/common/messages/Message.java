@@ -14,6 +14,7 @@ public class Message {
 
 	/**
 	 * Construct a new message.
+	 *
 	 * @param type The type/command
 	 * @param args The arguments
 	 * @param data The data
@@ -29,6 +30,7 @@ public class Message {
 
 	/**
 	 * Return the type as a string.
+	 *
 	 * @return The message type
 	 */
 	public String getTypeString() {
@@ -37,6 +39,7 @@ public class Message {
 
 	/**
 	 * Return the arguments as a string.
+	 *
 	 * @return The message arguments
 	 */
 	public String getArgsString() {
@@ -45,6 +48,7 @@ public class Message {
 
 	/**
 	 * Return the data as a string.
+	 *
 	 * @return The message data
 	 */
 	public String getDataString() {

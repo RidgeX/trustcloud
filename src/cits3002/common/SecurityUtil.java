@@ -3,8 +3,6 @@ package cits3002.common;
 import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
 import com.google.common.io.BaseEncoding;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -131,7 +129,7 @@ public class SecurityUtil {
 	 * @param data     The data being vouched
 	 * @return true if the signature is valid
 	 */
-	public static boolean verifyData(UnpackedSignature unpacked, byte[] data)
+	public static boolean verifyData(SignaturePair unpacked, byte[] data)
 			throws Exception {
 		Signature sig = Signature.getInstance("SHA1withRSA", "BC");
 		sig.initVerify(unpacked.getPublicKey());
@@ -140,23 +138,23 @@ public class SecurityUtil {
 	}
 
 	/**
-	 * An unpacked signature object, which bundles a public key with a signature.
+	 * An signature pair object, which bundles a public key with a signature.
 	 */
-	public static class UnpackedSignature {
+	public static class SignaturePair {
 		public byte[] publicKey;
 		public byte[] signatureData;
 
 		/**
-		 * Create a new unpacked signature.
+		 * Create a new signature pair.
 		 *
-		 * @param publicKey     The public key bytes
-		 * @param signatureData The signature bytes
+		 * @param base64PublicKey     The base64 public key data
+		 * @param base64SignatureData The base64 signature data
 		 */
-		public UnpackedSignature(byte[] publicKey, byte[] signatureData) {
-			Preconditions.checkNotNull(publicKey);
-			Preconditions.checkNotNull(signatureData);
-			this.publicKey = publicKey;
-			this.signatureData = signatureData;
+		public SignaturePair(String base64PublicKey, String base64SignatureData) {
+			Preconditions.checkNotNull(base64PublicKey);
+			Preconditions.checkNotNull(base64SignatureData);
+			this.publicKey = base64Decode(base64PublicKey);
+			this.signatureData = base64Decode(base64SignatureData);
 		}
 
 		/**
@@ -168,6 +166,24 @@ public class SecurityUtil {
 			return loadPublicKey(publicKey);
 		}
 
+		/**
+		 * Compute and return the base64 public key.
+		 *
+		 * @return The base64 public key data
+		 */
+		public String getBase64PublicKey() {
+			return base64Encode(publicKey);
+		}
+
+		/**
+		 * Compute and return the base64 signature data.
+		 *
+		 * @return The base64 signature data
+		 */
+		public String getBase64SignatureData() {
+			return base64Encode(signatureData);
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) {
@@ -177,7 +193,7 @@ public class SecurityUtil {
 				return false;
 			}
 
-			UnpackedSignature that = (UnpackedSignature) o;
+			SignaturePair that = (SignaturePair) o;
 
 			if (!Arrays.equals(publicKey, that.publicKey)) {
 				return false;
@@ -226,46 +242,5 @@ public class SecurityUtil {
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 		X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(data);
 		return keyFactory.generatePublic(publicKeySpec);
-	}
-
-	/**
-	 * Unpack a public key and signature from a pair of Base64-encoded strings.
-	 *
-	 * @param line The signature to unpack
-	 * @return The unpacked signature
-	 */
-	public static UnpackedSignature unpackSignature(String line)
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		String[] args = Iterables.toArray(
-				Splitter.on(' ').omitEmptyStrings().trimResults().split(line),
-				String.class);
-		Preconditions.checkArgument(args.length == 2);
-		return new UnpackedSignature(
-				base64Decode(args[0]),
-				base64Decode(args[1]));
-	}
-
-	/**
-	 * Unpack a public key and signature from the given data.
-	 *
-	 * @param data The signature to unpack
-	 * @return The unpacked signature
-	 */
-	public static UnpackedSignature unpackSignature(byte[] data)
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		return unpackSignature(new String(data, Charsets.ISO_8859_1));
-	}
-
-	/**
-	 * Pack a public key and signature into a pair of Base64-encoded strings.
-	 *
-	 * @param unpacked The signature to pack
-	 * @return The packed signature
-	 */
-	public static String packSignature(UnpackedSignature unpacked) {
-		return String.format(
-				"%s %s",
-				base64Encode(unpacked.publicKey),
-				base64Encode(unpacked.signatureData));
 	}
 }

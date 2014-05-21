@@ -206,9 +206,8 @@ public class Client {
 				request = MessageUtil.createMessage(
 						messageType,
 						new File(filename).getName(),
-						SecurityUtil.packSignature(
-								new SecurityUtil.UnpackedSignature(keyPair.getPublic().getEncoded(), sigData))
-				);
+						SecurityUtil.base64Encode(keyPair.getPublic().getEncoded()),
+						SecurityUtil.base64Encode(sigData));
 				break;
 		}
 
