@@ -119,27 +119,6 @@ public class NamespaceLayer {
 	}
 
 	/**
-	 * Return whether the specified file exists.
-	 *
-	 * @param filename      The name of the file
-	 * @param isCertificate Whether the file is a certificate
-	 * @return true if the file exists
-	 */
-	public static boolean fileExists(String filename, boolean isCertificate) {
-		return getFile(filename, isCertificate).exists();
-	}
-
-	/**
-	 * Return whether the specified file exists.
-	 *
-	 * @param filename The name of the file
-	 * @return true if the file exists
-	 */
-	public static boolean fileExists(String filename) {
-		return getFile(filename).exists();
-	}
-
-	/**
 	 * Return a description of the specified file.
 	 *
 	 * @param filename The name of the file
@@ -206,16 +185,6 @@ public class NamespaceLayer {
 	 */
 	public static boolean isCertificate(String filename) {
 		return getFile(filename, true).exists();
-	}
-
-	/**
-	 * Return whether the specified file is a normal file.
-	 *
-	 * @param filename The name of the file
-	 * @return true if the file is a certificate file
-	 */
-	public static boolean isNormalFile(String filename) {
-		return getFile(filename, false).exists();
 	}
 
 	/**

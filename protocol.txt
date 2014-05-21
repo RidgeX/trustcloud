@@ -1,96 +1,93 @@
 [Commands]
-Three newline terminated lines followed by binary data.
-The length of the binary data is specified on the first line as an ASCII unsigned integer.
-The message type is specified on the next line. Following is a vertical bar separated
-list of arguments on the third line. Then there is the binary data.
+The first line indicates the command type. The second line indicates the number of string arguments A. The third line indicates the length of the binary data B. Following are A lines with arguments. Following is B bytes of binary data.
+
 
 Example command:
-8\n
 PUT\n
-test.txt|F\n
+2\n
+8\n
+test.txt\n
+F\n
 testdata
 
 Add/replace file command:
-<file length>\n
 PUT\n
-<filename>|F\n
+2\n
+<file length>\n
+<filename>\n
+F\n
 <file>
 
 Add/replace file response:
-0\n
 OK\n
-\n
+0\n
+0\n
 
 Add/replace certificate command:
-<file length>\n
 PUT\n
-<filename>|C\n
+2\n
+<file length>\n
+<filename>\n
+C\n
 <file>
 
 Add/replace certificate response:
-0\n
 OK\n
-\n
+0\n
+0\n
 
 Fetch command:
-0\n
 GET\n
-<filename>|<min-ring-length>\n
+2\n
+0\n
+<filename>\n
+<min-ring-length>\n
 
 Fetch response:
-<file length>\n
 OK\n
-\n
+0\n
+<file length>\n
 <file>
 
 List files command:
-0\n
 LIST\n
-\n
+0\n
+0\n
 
 List files response:
-<description length>\n
 OK\n
-\n
+0\n
+<description length>\n
 <description>
 
-Hash command:
-0\n
-HASH\n
-<filename>\n
-
-Hash response:
-20\n
-OK\n
-\n
-<SHA1 hash bytes>
-
 Vouch file command:
-128\n
 VOUCH\n
+0\n
+3\n
 <filename>\n
-<Base64 public key> <Base64 signature>
+<Base64 public key>\n
+<Base64 signature>\n
 
 Vouch file response:
-0\n
 OK\n
-\n
+0\n
+0\n
 
 [Responses]
 Same format as commands. Example response:
-15\n
 OK\n
-\n
+0\n
+15\n
 Example message
 
 Success response:
-<binary data length>\n
 OK\n
-\n
+0\n
+<binary data length>\n
 <binary data>
 
 Fail response:
-<binary data length>\n
 FAIL\n
-\n
+0\n
+<binary data length>\n
 <binary data>

@@ -6,6 +6,7 @@ import cits3002.common.messages.MessageType;
 import cits3002.common.messages.MessageUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.google.common.primitives.UnsignedInts;
@@ -169,8 +170,6 @@ public class Client {
 	public void run(InetAddress host, int port, MessageType messageType, String filename,
 			String certificateName, int minimumRingLength) throws Exception {
 		Message request = null;
-		String[] args;
-
 		// Construct request message
 		switch (messageType) {
 			case PUT:
@@ -183,13 +182,14 @@ public class Client {
 					file = new File(filename);
 					isCertificate = "F";
 				}
-				args = new String[] {file.getName(), isCertificate};
-				request = MessageUtil.createMessage(messageType, args, Files.toByteArray(file));
+				request = MessageUtil
+						.createMessage(messageType, ImmutableList.of(file.getName(), isCertificate),
+								Files.toByteArray(file));
 				break;
 
 			case GET:
-				args = new String[] {filename, Integer.toString(minimumRingLength)};
-				request = MessageUtil.createMessage(messageType, args);
+				request = MessageUtil.createMessage(messageType,
+						ImmutableList.of(filename, Integer.toString(minimumRingLength)));
 				break;
 
 			case LIST:
@@ -205,9 +205,9 @@ public class Client {
 
 				request = MessageUtil.createMessage(
 						messageType,
-						new File(filename).getName(),
-						SecurityUtil.packSignature(
-								new SecurityUtil.UnpackedSignature(keyPair.getPublic().getEncoded(), sigData))
+						ImmutableList.of(new File(filename).getName(),
+								SecurityUtil.base64Encode(keyPair.getPublic().getEncoded()),
+								SecurityUtil.base64Encode(sigData))
 				);
 				break;
 		}

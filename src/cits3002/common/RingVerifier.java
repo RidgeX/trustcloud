@@ -15,9 +15,9 @@ import java.util.Set;
  * A class to verify a file's rings of trust.
  */
 public class RingVerifier {
-	private Multimap<String, String> edges;
-	private Set<String> ringBases;
-	private Set<String> visited;
+	private final Multimap<String, String> edges;
+	private final Set<String> ringBases;
+	private final Set<String> visited;
 
 	/**
 	 * Construct a new ring verifier.
@@ -69,22 +69,13 @@ public class RingVerifier {
 	 * @return The names of connected certificates
 	 */
 	private Set<String> getConnectedCertificates(String filename) {
-		Collection<SecurityUtil.UnpackedSignature> signatures =
+		Collection<SecurityUtil.SignaturePair> signatures =
 				TrustLayer.getSignaturesForFile(filename);
-		System.err.println("Signatures for " + filename);
-		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
-			System.err.println(unpacked.publicKey.hashCode());
-		}
 		Set<String> connectedCertificates = Sets.newHashSet();
-		for (SecurityUtil.UnpackedSignature unpacked : signatures) {
+		for (SecurityUtil.SignaturePair signaturePair : signatures) {
 			connectedCertificates.addAll(
-					NamespaceLayer.getCertificateFilenamesForPublicKey(
-							SecurityUtil.base64Encode(unpacked.publicKey))
+					NamespaceLayer.getCertificateFilenamesForPublicKey(signaturePair.getBase64PublicKey())
 			);
-		}
-		System.err.println("Connected certs for " + filename);
-		for (String certs : connectedCertificates) {
-			System.err.println(certs);
 		}
 		return connectedCertificates;
 	}

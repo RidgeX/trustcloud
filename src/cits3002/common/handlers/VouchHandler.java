@@ -13,20 +13,24 @@ import com.google.common.base.Preconditions;
  */
 public class VouchHandler implements Handler {
 	private final String filename;
-	private final byte[] data;
+	private final String base64PublicKey;
+	private final String base64SignatureData;
 
 	/**
 	 * Construct a new VOUCH handler.
 	 *
-	 * @param filename The file to vouch for
-	 * @param data     The encoded public key and signature
+	 * @param filename            The file to vouch for
+	 * @param base64PublicKey     The base64 public key
+	 * @param base64SignatureData The base64 signature data
 	 */
-	public VouchHandler(String filename, byte[] data) {
+	public VouchHandler(String filename, String base64PublicKey, String base64SignatureData) {
 		Preconditions.checkNotNull(filename);
-		Preconditions.checkNotNull(data);
+		Preconditions.checkNotNull(base64PublicKey);
+		Preconditions.checkNotNull(base64SignatureData);
 		Preconditions.checkArgument(NamespaceLayer.isValidFilename(filename));
 		this.filename = filename;
-		this.data = data;
+		this.base64PublicKey = base64PublicKey;
+		this.base64SignatureData = base64SignatureData;
 	}
 
 	/**
@@ -37,14 +41,15 @@ public class VouchHandler implements Handler {
 	@Override
 	public Message execute() {
 		try {
-			SecurityUtil.UnpackedSignature unpackedSignature = SecurityUtil.unpackSignature(data);
-			if (TrustLayer.addSignatureForFile(filename, unpackedSignature)) {
-				return MessageUtil.createMessage(MessageType.OK, "", "File signed.");
+			SecurityUtil.SignaturePair signaturePair =
+					new SecurityUtil.SignaturePair(base64PublicKey, base64SignatureData);
+			if (TrustLayer.addSignatureForFile(filename, signaturePair)) {
+				return MessageUtil.createMessage(MessageType.OK, "File signed.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return MessageUtil.createMessage(MessageType.FAIL, "", "Could not sign file.");
+		return MessageUtil.createMessage(MessageType.FAIL, "Could not sign file.");
 	}
 }

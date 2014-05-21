@@ -9,7 +9,7 @@ import cits3002.common.messages.MessageUtil;
  */
 public class InvalidHandler implements Handler {
 	/**
-	 * Constuct a new INVALID handler.
+	 * Construct a new INVALID handler.
 	 */
 	public InvalidHandler() {
 	}
@@ -21,6 +21,6 @@ public class InvalidHandler implements Handler {
 	 */
 	@Override
 	public Message execute() {
-		return MessageUtil.createMessage(MessageType.INVALID, "", "Unknown command.");
+		return MessageUtil.createMessage(MessageType.INVALID, "Unknown command.");
 	}
 }

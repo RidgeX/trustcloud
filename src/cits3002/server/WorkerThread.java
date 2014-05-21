@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class WorkerThread extends Thread {
 	private final SSLSocket socket;
-	private HandlerFactory handlerFactory;
+	private final HandlerFactory handlerFactory;
 
 	/**
 	 * Construct a new worker thread.
@@ -36,9 +36,10 @@ public class WorkerThread extends Thread {
 		try {
 			// Parse request
 			Message request = MessageUtil.parseMessage(socket.getInputStream());
-			System.err.println(">> " + request.data.length);
 			System.err.println(">> " + request.getTypeString());
-			System.err.println(">> " + request.getArgsString());
+			System.err.println(">> " + request.args.length);
+			System.err.println(">> " + request.data.length);
+			System.err.print(">> " + request.getArgsString());
 			if (request.data.length <= 1024) {
 				System.err.println(">> " + request.getDataString());
 			}
@@ -46,9 +47,10 @@ public class WorkerThread extends Thread {
 			// Execute request and build response
 			Handler handler = handlerFactory.getHandlerForMessage(request);
 			Message response = handler.execute();
-			System.err.println(">>> " + response.data.length);
 			System.err.println(">>> " + response.getTypeString());
-			System.err.println(">>> " + response.getArgsString());
+			System.err.println(">>> " + response.args.length);
+			System.err.println(">>> " + response.data.length);
+			System.err.print(">>> " + response.getArgsString());
 			if (response.data.length <= 1024) {
 				System.err.println(">>> " + response.getDataString());
 			}
