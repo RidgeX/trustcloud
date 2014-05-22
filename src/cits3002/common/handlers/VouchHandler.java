@@ -27,7 +27,6 @@ public class VouchHandler implements Handler {
 		Preconditions.checkNotNull(filename);
 		Preconditions.checkNotNull(base64PublicKey);
 		Preconditions.checkNotNull(base64SignatureData);
-		Preconditions.checkArgument(NamespaceLayer.isValidFilename(filename));
 		this.filename = filename;
 		this.base64PublicKey = base64PublicKey;
 		this.base64SignatureData = base64SignatureData;
@@ -41,8 +40,14 @@ public class VouchHandler implements Handler {
 	@Override
 	public Message execute() {
 		try {
+			if (!NamespaceLayer.isValidFilename(filename)) {
+				return MessageUtil.createMessage(MessageType.FAIL, "Invalid filename.");
+			}
 			SecurityUtil.SignaturePair signaturePair =
 					new SecurityUtil.SignaturePair(base64PublicKey, base64SignatureData);
+			if (TrustLayer.hasSignatureForFile(filename, signaturePair)) {
+				return MessageUtil.createMessage(MessageType.FAIL, "File already signed.");
+			}
 			if (TrustLayer.addSignatureForFile(filename, signaturePair)) {
 				return MessageUtil.createMessage(MessageType.OK, "File signed.");
 			}

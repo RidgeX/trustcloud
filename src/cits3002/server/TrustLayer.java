@@ -70,11 +70,6 @@ public class TrustLayer {
 				return false;
 			}
 
-			// Check that the signature hasn't already been made
-			if (fileToSigs.containsEntry(filename, signaturePair)) {
-				return false;
-			}
-
 			// Save the new signature
 			fileToSigs.put(filename, signaturePair);
 			File f = getSignatureFile(filename);
@@ -90,6 +85,15 @@ public class TrustLayer {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if a file has already been signed with the given signature.
+	 * @param filename The name of the file
+	 * @param signaturePair The signature
+	 */
+	public static boolean hasSignatureForFile(String filename, SecurityUtil.SignaturePair signaturePair) {
+		return fileToSigs.containsEntry(filename, signaturePair);
 	}
 
 	/**
