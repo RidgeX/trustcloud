@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A layer which manages file/certificate storage and querying.
@@ -39,7 +40,7 @@ public class NamespaceLayer {
 	/**
 	 * A regex pattern for illegal filename character.
 	 */
-	private static final String ILLEGAL_CHARACTER_REGEX = "[\\/:*?\"'<>|]";
+	private static final Pattern ILLEGAL_CHARACTER_REGEX = Pattern.compile("[\\/:*?\"'<>|]");
 
 	/**
 	 * Debug flag for printing ring paths.
@@ -194,7 +195,7 @@ public class NamespaceLayer {
 	 * @return true if the filename is valid
 	 */
 	public static boolean isValidFilename(String filename) {
-		return !filename.matches(ILLEGAL_CHARACTER_REGEX);
+		return !ILLEGAL_CHARACTER_REGEX.matcher(filename).find();
 	}
 
 	/**

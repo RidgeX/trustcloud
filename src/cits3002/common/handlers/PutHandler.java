@@ -28,7 +28,6 @@ public class PutHandler implements Handler {
 	public PutHandler(String filename, boolean isCertificate, byte[] data) {
 		Preconditions.checkNotNull(filename);
 		Preconditions.checkNotNull(data);
-		Preconditions.checkArgument(NamespaceLayer.isValidFilename(filename));
 		this.filename = filename;
 		this.isCertificate = isCertificate;
 		this.data = data;
@@ -42,6 +41,10 @@ public class PutHandler implements Handler {
 	@Override
 	public Message execute() {
 		try {
+			if (!NamespaceLayer.isValidFilename(filename)) {
+				return MessageUtil.createMessage(MessageType.FAIL, "Invalid filename.");
+			}
+
 			NamespaceLayer.deleteFile(filename);
 			TrustLayer.clearSignaturesForFile(filename);
 

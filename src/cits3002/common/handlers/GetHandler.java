@@ -22,7 +22,6 @@ public class GetHandler implements Handler {
 	 */
 	public GetHandler(String filename, int minimumRingLength) {
 		Preconditions.checkNotNull(filename);
-		Preconditions.checkArgument(NamespaceLayer.isValidFilename(filename));
 		this.filename = filename;
 		this.minimumRingLength = minimumRingLength;
 	}
@@ -35,6 +34,9 @@ public class GetHandler implements Handler {
 	@Override
 	public Message execute() {
 		try {
+			if (!NamespaceLayer.isValidFilename(filename)) {
+				return MessageUtil.createMessage(MessageType.FAIL, "Invalid filename.");
+			}
 			RingVerifier verifier = new RingVerifier(filename);
 			if (!verifier.hasRingOfSufficientLength(minimumRingLength)) {
 				return MessageUtil
