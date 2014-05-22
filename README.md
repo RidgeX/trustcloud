@@ -1,4 +1,14 @@
-# Readme
+## Trustcloud (Networks project)
+
+Team:
+
+  * Eliot Courtney (21141563)
+  * Ridge Shrubsall (21112211)
+
+Partner team:
+
+  * Joseph Dunne (20939027)
+  * Izaak Sultan (21134597)
 
 ## Libraries
   * [Bouncy Castle](http://www.bouncycastle.org/java.html)
