@@ -43,6 +43,9 @@ public class VouchHandler implements Handler {
 		try {
 			SecurityUtil.SignaturePair signaturePair =
 					new SecurityUtil.SignaturePair(base64PublicKey, base64SignatureData);
+			if (TrustLayer.hasSignatureForFile(filename, signaturePair)) {
+				return MessageUtil.createMessage(MessageType.FAIL, "File already signed.");
+			}
 			if (TrustLayer.addSignatureForFile(filename, signaturePair)) {
 				return MessageUtil.createMessage(MessageType.OK, "File signed.");
 			}
